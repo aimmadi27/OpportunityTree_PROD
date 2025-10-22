@@ -1,0 +1,1108 @@
+{
+  "type": "object",
+  "properties": {
+    "generalInfo": {
+      "type": "object",
+      "properties": {
+        "prospective_member_name": { "type": "string" },
+        "main_contact": { "type": "string" },
+        "relationship": { "type": "string" },
+        "date_of_birth": { "type": "string" },
+        "primary_phone": { "type": "string" },
+        "email": { "type": "string" },
+        "school_name": {
+          "type": "string",
+          "description": "If still a student"
+        },
+        "referral_source": {
+          "type": "string",
+          "description": "How did you hear about us?"
+        },
+        "main_address": {
+          "type": "object",
+          "properties": {
+            "street": { "type": "string" },
+            "city": { "type": "string" },
+            "state": { "type": "string" },
+            "zip_code": { "type": "string" }
+          }
+        },
+        "mailing_address": {
+          "type": "object",
+          "properties": {
+            "street": { "type": "string" },
+            "city": { "type": "string" },
+            "state": { "type": "string" },
+            "zip_code": { "type": "string" }
+          },
+          "description": "If different from above"
+        }
+      }
+    },
+    "programsServicesInterest": {
+      "type": "object",
+      "properties": {
+        "selected_programs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Adult Day Training/Habilitation/Activities",
+              "1-on-1 Employment Support Specialists (ESS)",
+              "Supported Aging Program",
+              "Work Center Vocational Training",
+              "Job Development and Retention (JDR) services",
+              "Work Adjustment Training (WAT) services",
+              "Independent & Extended Supported Employee (ISE & ESE) supports",
+              "Group Supported Employment (GSE) services",
+              "Employment Support",
+              "Community-Based Enclave",
+              "Youth Program",
+              "Weekend Program",
+              "Pre-Employment Transition Services (Pre-ETS)",
+              "Transportation"
+            ],
+            "required" : []
+          }
+        }
+      }
+    },
+    "services": {
+      "type": "object",
+      "properties": {
+        "campus_interest": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["Phoenix", "Maricopa", "Casa Grande", "Avondale"],
+            "required": []
+          }
+        },
+        "funding_source": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Division of Developmental Disabilities",
+              "Private Pay (PP)",
+              "VR Counsellor",
+              "Other"
+            ],
+            "required": []
+          }
+        },
+        "funding_source_other": {
+          "type": "string",
+          "description": "If 'Other' selected, specify funding source"
+        },
+        "support_contact": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "phone": { "type": "string" },
+            "email": { "type": "string" }
+          },
+          "description": "DDD Support Coordinator/VR Counselor/Service Contact"
+        },
+        "transportation": {
+          "type": "object",
+          "properties": {
+            "am": { "type": "boolean", "description": "AM transportation (only with DDD services)" },
+            "pm": { "type": "boolean", "description": "PM transportation (only with DDD services)" }
+          }
+        },
+        "office_use_only": {
+          "type": "object",
+          "properties": {
+            "location_site": { "type": "string" },
+            "start_date": { "type": "string" },
+            "service_codes": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "DTA", "DTT", "GSE", "ESA", "ISE", "TRA",
+                  "Habilitation", "Attendant Care", "VR", "ES",
+                  "RSP", "DTS", "Respite", "IDLA"
+                ],
+                "required": []
+              }
+            }
+          },
+          "description": "Gray area for office use only"
+        }
+      }
+    },
+    "emergencyContacts": {
+      "type": "object",
+      "properties": {
+        "primary_contact": {
+          "type": "object",
+          "properties": {
+            "relationship": { "type": "string" },
+            "phone": { "type": "string" },
+            "email": { "type": "string" }
+          }
+        },
+        "secondary_contact": {
+          "type": "object",
+          "properties": {
+            "relationship": { "type": "string" },
+            "phone": { "type": "string" },
+            "email": { "type": "string" }
+          }
+        },
+        "residential_manager": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "residence_phone": { "type": "string" },
+            "manager_work_cell": { "type": "string" }
+          },
+          "description": "Residential Manager (if applicable)"
+        }
+      }
+    },
+    "guardianFamilyInformation": {
+      "type": "object",
+      "properties": {
+        "guardian": {
+          "type": "object",
+          "properties": {
+            "guardian_type": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["Legal Guardian", "Self-Guardian"],
+                "required": []
+              }
+            },
+            "guardian_same_as_general": {
+              "type": "boolean",
+              "description": "Same as General Info block"
+            },
+            "name": { "type": "string" },
+            "relationship": { "type": "string" },
+            "address": {
+              "type": "object",
+              "properties": {
+                "street": { "type": "string" },
+                "city": { "type": "string" },
+                "state": { "type": "string" },
+                "zip_code": { "type": "string" }
+              }
+            },
+            "email": { "type": "string" },
+            "phone": { "type": "string" }
+          }
+        },
+        "family": {
+          "type": "object",
+          "properties": {
+            "co_guardian_different_address": { "type": "boolean" },
+            "same_as_guardian": { "type": "boolean" },
+            "name": { "type": "string" },
+            "relationship": { "type": "string" },
+            "address": {
+              "type": "object",
+              "properties": {
+                "street": { "type": "string" },
+                "city": { "type": "string" },
+                "state": { "type": "string" },
+                "zip_code": { "type": "string" }
+              }
+            },
+            "email": { "type": "string" },
+            "phone": { "type": "string" }
+          }
+        }
+      }
+    },
+    "healthAndMedical": {
+      "type": "object",
+      "properties": {
+        "additional_diagnosis_medical_needs": {
+          "type": "string"
+        },
+        "insurance": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "insurance_company": { "type": "string" },
+              "policy_number": { "type": "string" },
+              "required": []
+            }
+          },
+          "description": "Supports multiple insurance entries"
+        },
+        "height": { "type": "string" },
+        "weight": { "type": "string" },
+        "seizures": {
+          "type": "boolean",
+          "description": "Indicates whether the applicant has seizures. If Yes, Seizure Information Page must be completed."
+        },
+        "chronic_conditions": {
+          "type": "string",
+          "description": "Chronic or reoccurring medical conditions"
+        },
+        "special_health_instructions": {
+          "type": "string"
+        }
+      }
+    },
+    "mobility": {
+      "type": "object",
+      "properties": {
+        "mobility_status": {
+          "type": "string",
+          "enum": [
+            "Fully Ambulatory",
+            "Independent with Wheelchair",
+            "Needs Full Assistance"
+          ]
+        },
+        "walks_with_assistance": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["Person", "Equipment"],
+            "required": []
+          }
+        },
+        "assistance_description": {
+          "type": "string",
+          "description": "Additional details if assistance is required"
+        }
+      }
+    },
+    "dietAndNutrition": {
+      "type": "object",
+      "properties": {
+        "special_dietary_requirements": { "type": "string" },
+        "allergies": {
+          "type": "string",
+          "description": "Foods, medications, or other allergies"
+        },
+        "eating_drinking_practices": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Independent (All Foods)",
+              "Soft Foods Only",
+              "With Adaptive Equipment",
+              "Requires Assistance and/or Supervision"
+            ],
+            "required": []
+          }
+        },
+        "adaptive_equipment_description": { "type": "string" },
+        "assistance_supervision_description": { "type": "string" }
+      }
+    },
+    "personalCareMotorCoordination": {
+      "type": "object",
+      "properties": {
+        "fine_motor_impairments": {
+          "type": "string",
+          "description": "Include options for assistance (hand over hand, modified utensils, etc.)"
+        },
+        "toileting_menstrual_care": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Independent",
+              "Occasional or Regular Reminders",
+              "Requires Assistance"
+            ],
+            "required": []
+          }
+        },
+        "toileting_assistance_description": { "type": "string" }
+      }
+    },
+    "prescription_medication": {
+      "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "medication_name": { "type": "string" },
+            "time_administered": { "type": "string" }, 
+            "self_administered": { "type": "boolean" },
+            "doctor_name": { "type": "string" },
+            "pharmacy": { "type": "string" },
+            "dosage": { "type": "string" }
+          },
+          "required": [
+            "medication_name",
+            "time_administered",
+            "self_administered",
+            "doctor_name",
+            "pharmacy",
+            "dosage"
+          ]
+        }
+    }, 
+    "demographics": {
+      "type": "object",
+      "properties": {
+        "general": {
+          "type": "object",
+          "properties": {
+            "member_id_code": { "type": "string", "description": "Office use only" },
+            "authorization_start_date": { "type": "string" },
+            "date_of_birth": { "type": "string" },
+            "ahcccs_id": { "type": "string" },
+            "assist_id": { "type": "string" },
+            "focus_id": { "type": "string" },
+            "medicare_id": { "type": "string" },
+            "medicaid_id": { "type": "string" },
+            "cif_id": { "type": "string", "description": "VR only" },
+            "auth_id": { "type": "string", "description": "VR only" },
+            "address": {
+              "type": "object",
+              "properties": {
+                "street": { "type": "string" },
+                "city": { "type": "string" },
+                "state": { "type": "string" },
+                "zip_code": { "type": "string" },
+                "phone": { "type": "string" }
+              }
+            },
+            "race": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "Caucasian/White",
+                  "Black/African American",
+                  "Native Hawaiian/Other Pacific Islander",
+                  "American Indian/Alaskan Native",
+                  "Asian",
+                  "Multi-Racial",
+                  "Other"
+                ],
+                "required": []
+              }
+            },
+            "ethnicity": {
+              "type": "string",
+              "enum": ["Hispanic", "Non-Hispanic"]
+            },
+            "sex": {
+              "type": "string",
+              "enum": ["Male", "Female"]
+            }
+          }
+        },
+        "disability": {
+          "type": "object",
+          "properties": {
+            "primary_diagnosis": { "type": "string" },
+            "secondary_diagnosis": { "type": "string" },
+            "disability_types": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "Physical Disability (PD)",
+                  "Developmental Disability (DD)",
+                  "No Disability",
+                  "PD Re: Work",
+                  "PD Re: Transportation",
+                  "DD Re: Work",
+                  "DD Re: Transportation",
+                  "Other"
+                ],
+                "required": []
+              }
+            }
+          }
+        },
+        "resources": {
+          "type": "object",
+          "properties": {
+            "benefits": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "Social Security",
+                  "SSI",
+                  "SSDI",
+                  "AHCCCS",
+                  "TANF",
+                  "Food Stamps",
+                  "General Assistance",
+                  "Veteran’s Compensation",
+                  "Other"
+                ], "required": []
+              }
+            },
+            "other_benefits_specify": { "type": "string" }
+          }
+        },
+        "household": {
+          "type": "object",
+          "properties": {
+            "residential_setting": {
+              "type": "string",
+              "enum": [
+                "Independently (no supports)",
+                "Homelessness",
+                "Family (Of Origin) Home",
+                "Group Supported Living (Group Home)",
+                "Adult Developmental Home (ADH)",
+                "Individually Designed Living Arrangement (IDLA)"
+              ]
+            },
+            "household_size": {
+              "type": "number",
+              "description": "Total number of individuals living in household including participant"
+            }
+          }
+        }
+      }
+    },
+    "communicationAndSocialLife": {
+      "type": "object",
+      "properties": {
+        "clearly_communicates": {
+          "type": "boolean",
+          "description": "Does the applicant clearly communicate their wants and needs?"
+        },
+        "speech_description": {
+          "type": "string",
+          "enum": [
+            "Easily understood by everyone",
+            "Understood by those familiar with them",
+            "Limited verbal ability",
+            "Non-verbal"
+          ]
+        },
+        "easiest_expression_methods": {
+          "type": "object",
+          "properties": {
+            "methods": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "Speech",
+                  "Communication device",
+                  "Sign language",
+                  "Gesturing",
+                  "Other"
+                ],
+                "required": []
+              }
+            },
+            "other_description": {
+              "type": "string"
+            }
+          }
+        },
+        "easiest_understanding_methods": {
+          "type": "object",
+          "properties": {
+            "methods": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "Speech",
+                  "Communication device",
+                  "Sign language",
+                  "Gesturing",
+                  "Other"
+                ], 
+                "required": []
+              }
+            },
+            "other_description": {
+              "type": "string"
+            }
+          }
+        },
+        "communication_considerations": {
+          "type": "string",
+          "description": "Any considerations to keep in mind when communicating with the applicant."
+        },
+        "currently_receives_therapies": {
+          "type": "object",
+          "properties": {
+            "receives_therapy": {
+              "type": "boolean"
+            },
+            "therapy_goals": {
+              "type": "string",
+              "description": "Brief description of current therapy goals if therapy is received."
+            }
+          }
+        }
+      }
+    },
+    "seizureInformation": {
+      "type": "object",
+      "properties": {
+        "history_of_seizures": {
+          "type": "boolean",
+          "description": "Does the applicant have any history of seizures?"
+        },
+        "seizure_activity_past_5_years": {
+          "type": "boolean",
+          "description": "Has the applicant had any seizure activity in the past 5 years?"
+        },
+        "last_seizure_date": {
+          "type": "string",
+          "description": "Month/Year of the last seizure"
+        },
+        "seizure_control_with_medication": {
+          "type": "string",
+          "enum": [
+            "Completely controlled",
+            "Partially controlled",
+            "Not controlled"
+          ]
+        },
+        "seizure_frequency": {
+          "type": "string",
+          "description": "How frequently the applicant has seizures (times per day, week, month, or year)"
+        },
+        "seizure_duration_before_intervention": {
+          "type": "string",
+          "description": "Maximum seizure duration before medical intervention is required"
+        },
+        "antecedents_to_seizure": {
+          "type": "string",
+          "description": "Describe any antecedents to a seizure"
+        },
+        "post_seizure_behavior_changes": {
+          "type": "string",
+          "description": "Noticeable changes in behavior after a seizure (e.g., groggy, confused, irritable, etc.)"
+        },
+        "typical_seizure_presentation": {
+          "type": "string",
+          "description": "Description of how a seizure typically presents, including physical characteristics and duration"
+        },
+        "emergency_medical_interventions": {
+          "type": "string",
+          "description": "Describe medical interventions that are appropriate and available in an emergency (nerve stimulator, medication, length of seizure before calling paramedics, etc.)"
+        },
+        "other_seizure_info": {
+          "type": "string",
+          "description": "Please discuss any other information relating to seizures that is important for the individual’s safety?"
+        }
+      }
+    },
+    "behaviorAndPersonality": {
+      "type": "object",
+      "properties": {
+        "age_appropriate_social_skills": {
+          "type": "boolean",
+          "description": "Does the applicant exhibit age-appropriate social skills?"
+        },
+        "non_age_appropriate_behavior_description": {
+          "type": "string",
+          "description": "If no, describe the behavior that is not age appropriate"
+        },
+        "behavioral_concerns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "concern_type": {
+                "type": "string",
+                "enum": [
+                  "Hurtful to self (suicidal)",
+                  "Hurtful to others",
+                  "Destructive to property",
+                  "Repetitive behavior",
+                  "Withdrawn or inattentive behavior",
+                  "Running away",
+                  "Verbal aggression",
+                  "Physical aggression",
+                  "Pica",
+                  "Fall frequently",
+                  "Lacks stranger danger skills",
+                  "Risk of exploitation",
+                  "Other"
+                ], 
+                "required": []
+              },
+              "description": {
+                "type": "string",
+                "description": "Description of the behavior"
+              },
+              "frequency": {
+                "type": "string",
+                "description": "Frequency of occurrence (times per day, week, month, or year)"
+              }
+            }
+          }
+        },
+        "context_of_behavior": {
+          "type": "string",
+          "description": "Context of the behavior, including last instance, possible causes, and effective techniques"
+        },
+        "behavior_management_plan": {
+          "type": "string",
+          "description": "Is anything currently being done to manage the behavior (e.g., Behavior Treatment Plan, therapy, stress management)?"
+        },
+        "warning_signs_before_behavior": {
+          "type": "string",
+          "description": "Behaviors or warning signs that occur before harmful behavior to help de-escalate situations"
+        },
+        "social_interaction_preference": {
+          "type": "string",
+          "enum": [
+            "Enjoys interacting with others",
+            "Prefers to spend time by themselves",
+            "Withdrawn at first but outgoing once comfortable"
+          ]
+        },
+        "preferred_environment": {
+          "type": "string",
+          "enum": [
+            "Calm, low stimulus and relaxing",
+            "Active, stimulating and engaging"
+          ]
+        },
+        "sensory_sensitivities": {
+          "type": "string",
+          "description": "Any sensitivities to light, sound, touch, or other sensory perceptions"
+        },
+        "enjoyable_activities": {
+          "type": "string",
+          "description": "Activities the applicant enjoys or might enjoy if given the opportunity"
+        }
+      }
+    },
+    "Learning_and_Personal_Growth": {
+      "type": "object",
+      "properties": {
+        "money_management_skills": {
+          "type": "string",
+          "enum": [
+            "Can count bills",
+            "Can count change",
+            "Understands how to make a purchase in a store using money or credit cards (may need assistance in counting the money)",
+            "Can plan a budget for at least one shopping trip"
+          ]
+        },
+        "reading_comprehension": {
+          "type": "string",
+          "enum": [
+            "No ability to read",
+            "Reads sight words and identifies symbols (stop signs, restroom signs, etc.)",
+            "Simple reading (around the level of a 3rd grader)",
+            "Average reading (at least middle school or junior high level)",
+            "Advanced reading (post high school level)"
+          ]
+        },
+        "academicAndLifeSkills": {
+          "type": "object",
+          "properties": {
+            "skills_to_improve": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "Reading",
+                  "Writing",
+                  "Math",
+                  "Money management",
+                  "Communicating with others more clearly",
+                  "Communicating with others in a more positive way",
+                  "Cooking",
+                  "Cleaning (house work)",
+                  "Safety skills",
+                  "Other"
+                ],
+                "required": []
+              }
+            },
+            "other_description": {
+              "type": "string",
+              "description": "If 'Other' is selected, specify the skill"
+            }
+          }
+        },
+        "teaching_techniques": {
+          "type": "string",
+          "enum": [
+            "Hand over hand instruction",
+            "Instructor modeling",
+            "Step by step spoken instructions",
+            "Peer modeling",
+            "Step by step written instructions"
+          ]
+        },
+        "instructional_steps_followed": {
+          "type": "string",
+          "description": "How many instructional steps can the applicant follow at a time?"
+        },
+        "other_teaching_techniques": {
+          "type": "string"
+        },
+        "program_goals": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Have something to do during the day",
+              "Learn new work skills",
+              "Enjoy being in a fun, active, positive environment",
+              "Earn a paycheck",
+              "Make new friends",
+              "Work in one of our community enclaves",
+              "Increase self-esteem",
+              "Develop the skills to find a job independently",
+              "Learn new daily living skills",
+              "Develop the skills to live independently",
+              "Learn new academic skills"
+            ],
+            "required": []
+          }
+        }
+      }
+    },
+    "medicalHistory": {
+    "type": "object",
+    "properties": {
+      "family_medical_history": {
+        "type": "object",
+        "properties": {
+          "conditions": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "Cancer",
+                "Diabetes",
+                "Heart Disease",
+                "High Blood Pressure",
+                "Mental Illness",
+                "Other"
+              ],
+              "required": []
+            }
+          },
+          "other_description": {
+            "type": "string",
+            "description": "If 'Other' selected, specify condition"
+          }
+        }
+      },
+      "individual_medical_history": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "Anemia",
+            "Asthma",
+            "Blood Clots",
+            "Cancer",
+            "Chicken Pox",
+            "Chronic Bronchitis",
+            "Chronic Ear Infection",
+            "Diabetes",
+            "Encephalitis",
+            "Gall Bladder Problems",
+            "Gastritis",
+            "Head Trauma/Injury",
+            "Heart Disease/Murmur",
+            "Hepatitis",
+            "High Blood Pressure",
+            "High Fever",
+            "Immune Suppressed Disorder",
+            "Liver Disorder",
+            "Measles",
+            "Meningitis",
+            "Mental Illness",
+            "Migraine Headaches",
+            "Mumps",
+            "Pneumonia",
+            "Polio",
+            "Rheumatic Fever",
+            "Substance Abuse/Addiction",
+            "Thyroid Disorder",
+            "Tuberculosis",
+            "Ulcers",
+            "Valley Fever",
+            "Venereal Disease",
+            "Other"
+          ],
+          "required": []
+        }
+      },
+      "immunizations": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "vaccine": {
+              "type": "string",
+              "enum": [
+                "Tetanus",
+                "Hepatitis B Screening",
+                "DPT",
+                "Measles",
+                "PPD (TB Screening)",
+                "Hepatitis B Vaccination",
+                "Polio",
+                "Other"
+              ],
+              "required": []
+            },
+            "date": {
+              "type": "string",
+              "description": "Date of immunization if available"
+            },
+            "other_description": {
+              "type": "string",
+              "description": "If 'Other' selected, specify the immunization name and date"
+            }
+          }
+        }
+      },
+      "allergies": {
+        "type": "object",
+        "properties": {
+          "has_allergies": {
+            "type": "boolean"
+          },
+          "allergy_details": {
+            "type": "string",
+            "description": "Specify allergy if yes"
+          }
+        }
+      },
+      "dental_history": {
+        "type": "object",
+        "properties": {
+          "gum_disease": {
+            "type": "boolean"
+          },
+          "orthodontic_appliances": {
+            "type": "boolean"
+          },
+          "orthodontic_appliances_description": {
+            "type": "string",
+            "description": "Specify details if orthodontic appliances are used"
+          }
+        }
+      },
+      "current_medications": {
+        "type": "string",
+        "description": "List of current medications"
+      },
+      "last_physical_exam_date": {
+        "type": "string",
+        "description": "Date of last physical examination"
+      },
+      "surgeries_hospitalizations": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "date": { "type": "string" },
+            "diagnosis": { "type": "string" },
+            "hospital": { "type": "string" },
+            "physician_or_therapist": { "type": "string" },
+            "required": []
+          }
+        }
+      },
+      "healthMedical": {
+        "type": "object",
+        "properties": {
+          "signs_and_symptoms": {
+            "type": "string",
+            "description": "Signs and symptoms to monitor"
+          },
+          "steps_if_signs_appear": {
+            "type": "string",
+            "description": "Steps to be taken if signs appear"
+          },
+          "blood_pressure_medication": {
+            "type": "boolean",
+            "description": "Whether applicant is on blood pressure medication"
+          },
+          "parameters_by_physician_bp": {
+            "type": "boolean",
+            "description": "Whether physician has established blood pressure parameters"
+          },
+          "monitoring_techniques": {
+            "type": "string",
+            "description": "What monitoring techniques are used (frequency, ranges, etc.)"
+          },
+          "bp_out_of_range_procedures": {
+            "type": "string",
+            "description": "Procedures to follow if blood pressure is out of established ranges"
+          },
+          "diabetic": {
+            "type": "boolean",
+            "description": "Whether applicant is diabetic"
+          },
+          "blood_sugar_frequency": {
+            "type": "string",
+            "description": "Frequency of blood sugar level monitoring"
+          },
+          "parameters_by_physician_diabetes": {
+            "type": "string",
+            "description": "Parameters for diabetes established by physician"
+          }
+        }
+      },
+      "healthCareRelatedIssues": {
+        "type": "object",
+        "properties": {
+          "btp_required": { "type": "boolean" },
+          "btp_target_behaviors": { "type": "string" },
+          "other_interfering_behaviors": { "type": "string" }
+        }
+      },
+      "nutritionalNeeds": {
+        "type": "object",
+        "properties": {
+          "food_preparation": {
+            "type": "string",
+            "enum": ["Regular", "Bite-size", "Puree", "Other"]
+          },
+          "food_preparation_other": { "type": "string" },
+          "special_diet": { "type": "boolean" },
+          "special_diet_specify": { "type": "string" },
+          "nutritional_supplements": { "type": "boolean" },
+          "nutritional_supplements_specify": { "type": "string" },
+          "choke_or_gag_reflex": { "type": "boolean" },
+          "mealtime_assistance_required": { "type": "boolean" },
+          "mealtime_assistance_list": { "type": "string" }
+        }
+      },
+      "specialFluidIntakeNeeds": {
+        "type": "object",
+        "properties": {
+          "can_request_fluids": { "type": "boolean" },
+          "system_if_cannot_request": {
+            "type": "string",
+            "description": "System to ensure adequate fluids if resident cannot obtain/request"
+          },
+          "fluid_recommendations": {
+            "type": "string",
+            "description": "Medical/nutritional fluid recommendations"
+          }
+        }
+      },
+      "adaptiveEquipmentAndFacilityAdaptations": {
+        "type": "object",
+        "properties": {
+          "adaptive_equipment": {
+            "type": "boolean",
+            "description": "Whether the applicant uses adaptive equipment (glasses, hearing aids, wheelchairs, communication devices, etc.)"
+          },
+          "adaptive_equipment_list": { "type": "string" },
+          "adaptive_equipment_instructions": { "type": "string" },
+          "protective_devices": {
+            "type": "boolean",
+            "description": "Whether the applicant uses protective devices"
+          },
+          "protective_devices_list": { "type": "string" },
+          "facility_adaptations": {
+            "type": "boolean",
+            "description": "Whether facility adaptations are needed (ramps, Plexiglas windows, grab bars, etc.)"
+          },
+          "facility_adaptations_list": { "type": "string" }
+        }
+      },
+      "liftingCarryingPositioning": {
+        "type": "object",
+        "properties": {
+          "special_instructions_required": {
+            "type": "boolean",
+            "description": "Whether special instructions are required for lifting, carrying, or positioning"
+          },
+          "instructions_specify": { "type": "string" },
+          "equipment": { "type": "string" },
+          "time_schedules": { "type": "string" }
+        }
+      },
+      "otherHealthCareNeeds": {
+        "type": "string",
+        "description": "OTHER ADDITIONAL HEALTH CARE NEEDS/ROUTINES (i.e. tooth brushing, flossing, nail care, etc.): "
+      },
+      "groomingPersonalCare": {
+        "type": "object",
+        "properties": {
+          "special_instructions_bathing": {
+            "type": "boolean",
+            "description": "Whether special instructions are required for bathing"
+          },
+          "bathing_methods": {
+            "type": "string",
+            "description": "Methods used for bathing"
+          },
+          "bathing_products": {
+            "type": "string",
+            "description": "Products required for bathing"
+          },
+          "supervision_required": {
+            "type": "boolean",
+            "description": "Whether supervision is required during bathing"
+          },
+          "gender_preference": {
+            "type": "string",
+            "enum": ["Male", "Female", "No Preference"]
+          }
+        }
+      },
+      "communication": {
+        "type": "object",
+        "properties": {
+          "can_express_wants_needs": {
+            "type": "boolean",
+            "description": "Whether the resident can express wants and needs"
+          },
+          "communication_type": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "Verbal",
+                "Sign",
+                "Gestures",
+                "Augmentative devices",
+                "Other"
+              ],
+              "required": []
+            }
+          },
+          "communication_other_specify": {
+            "type": "string",
+            "description": "If 'Other' is selected, specify"
+          }
+        }
+      },
+      "specialMedicalMonitoring": {
+          "type": "object",
+          "properties": {
+            "special_lab_work_required": {
+              "type": "boolean",
+              "description": "Whether special lab work is required (e.g., Lithium levels, Dilantin levels, thyroid, etc.)"
+            },
+            "lab_work_specify": {
+              "type": "string",
+              "description": "Specify which lab work is required"
+            },
+            "lab_work_frequency": {
+              "type": "string",
+              "description": "Frequency of required lab work"
+            }
+          }
+        }
+      }
+    }
+  }
+}
