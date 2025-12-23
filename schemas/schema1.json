@@ -1,0 +1,195 @@
+{
+  "type": "object",
+  "properties": {
+    "generalInfo": {
+      "type": "object",
+      "properties": {
+        "prospective_member_name": { "type": "string" },
+        "main_contact": { "type": "string" },
+        "relationship": { "type": "string" },
+        "date_of_birth": { "type": "string" },
+        "primary_phone": { "type": "string" },
+        "mailing_address": {
+          "type": "object",
+          "properties": {
+            "street": { "type": "string" },
+            "city": { "type": "string" },
+            "state": { "type": "string" },
+            "zip_code": { "type": "string" }
+          },
+          "description": "If different from above"
+        },
+        "email": { "type": "string" },
+        "primary_diagnosis": { "type": "string" },
+        "secondary_diagnosis": { "type": "string" },
+        "school_name": {
+          "type": "string",
+          "description": "If still a student"
+        },
+        "referral_source": {
+          "type": "string",
+          "description": "How did you hear about us?"
+        }
+      }
+    },
+    "programsServices": {
+      "type": "object",
+      "properties": {
+        "campus_interest": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["Phoenix Campus", "Maricopa Campus", "Casa Grande Campus", "Avondale Campus"]
+          },
+          "description": "Checkboxes on the form; select all that apply."
+        },
+        "funding_source": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["Division of Developmental Disabilities", "Private Pay (PP)", "Other"]
+          },
+          "description": "Checkboxes on the form; select all that apply."
+        },
+        "support_contact": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "phone": { "type": "string" },
+            "email": { "type": "string" }
+          },
+          "description": "DDD Support Coordinator/Service Contact"
+        },
+        "selected_programs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Adult Day Training/Habilitation/Activities",
+              "Work Center Vocational Training",
+              "Community-Based Enclave",
+              "Individual Supported Employment",
+              "Youth/School-Age/Transition Programs",
+              "Weekend Program",
+              "Transportation"
+            ]
+          },
+          "description": "What Programs/Services Interest You; checkboxes on the form, select all that apply."
+        },
+        "transportation": {
+          "type": "object",
+          "properties": {
+            "am": { "type": "boolean", "description": "Transportation AM" },
+            "pm": { "type": "boolean", "description": "Transportation PM" }
+          }
+        },
+        "office_use_only": {
+          "type": "object",
+          "properties": {
+            "location_site": { "type": "string" },
+            "start_date": { "type": "string" },
+            "service_codes": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["DTA", "CBE", "GSE", "ESA", "ISE", "DTT", "DTS", "RSP", "TRA", "TRE"]
+              }
+            }
+          },
+          "description": "Gray area for office use only"
+        }
+      }
+    },
+    "emergencyContacts": {
+      "type": "object",
+      "properties": {
+        "primary_contact": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "relationship": { "type": "string" },
+            "home": { "type": "string" },
+            "work_cell": { "type": "string" }
+          },
+          "description": "Emergency Contact, Primary"
+        },
+        "secondary_contact": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "relationship": { "type": "string" },
+            "home": { "type": "string" },
+            "work_cell": { "type": "string" }
+          },
+          "description": "Emergency Contact, Secondary"
+        },
+        "residential_manager": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "residence_phone": { "type": "string" },
+            "manager_work_cell": { "type": "string" }
+          },
+          "description": "Residential Manager (if applicable)"
+        }
+      }
+    },
+    "guardianFamilyInformation": {
+      "type": "object",
+      "properties": {
+        "guardian": {
+          "type": "object",
+          "properties": {
+            "guardian_type": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["Legal Guardian", "Conservator", "Self-Guardian"],
+                "description": "Checkboxes on the form; select one."
+              }
+            },
+            "name": { "type": "string" },
+            "relationship": { "type": "string" },
+            "address": {
+              "type": "object",
+              "properties": {
+                "street": { "type": "string" },
+                "city": { "type": "string" },
+                "state": { "type": "string" },
+                "zip_code": { "type": "string" }
+              }
+            },
+            "email": { "type": "string" },
+            "phone": { "type": "string" }
+          }
+        },
+        "co_guardian": {
+          "type": "object",
+          "properties": {
+            "guardian_type": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["Same as Guardian", "Co-Guardian/Parent"],
+                "description": "Checkboxes on the form; select one."
+              }
+            },
+            "name": { "type": "string" },
+            "relationship": { "type": "string" },
+            "address": {
+              "type": "object",
+              "properties": {
+                "street": { "type": "string" },
+                "city": { "type": "string" },
+                "state": { "type": "string" },
+                "zip_code": { "type": "string" }
+              }
+            },
+            "email": { "type": "string" },
+            "phone": { "type": "string" }
+          }
+        }
+      }
+    }
+  }
+}
