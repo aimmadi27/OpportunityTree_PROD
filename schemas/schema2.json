@@ -1,0 +1,110 @@
+{
+  "type": "object",
+  "properties": {
+    "healthAndMedical": {
+      "type": "object",
+      "properties": {
+        "additional_diagnosis_medical_needs": {
+          "type": "string",
+          "description": "Additional Relevant Diagnosis/Medical Needs"
+        },
+        "insurance": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "insurance_company": { "type": "string" },
+              "policy_number": { "type": "string" }
+            }
+          },
+          "description": "Supports multiple insurance entries"
+        },
+        "height": { "type": "string" },
+        "weight": { "type": "string" },
+        "seizures": {
+          "type": "boolean",
+          "description": "Checkboxes on the form; select one."
+        },
+        "chronic_conditions": {
+          "type": "string",
+          "description": "Chronic or Reoccurring Medical Conditions"
+        },
+        "special_health_instructions": {
+          "type": "string",
+          "description": "Special Health-Related Instructions"
+        }
+      }
+    },
+    "mobility": {
+      "type": "object",
+      "properties": {
+        "mobility_status": {
+          "type": "string",
+          "enum": ["Fully Ambulatory", "Independent with Wheelchair", "Needs Full Assistance"],
+          "description": "Checkboxes on the form; select one."
+        },
+        "walks_with_assistance": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["Person", "Equipment"]
+          }
+        },
+        "assistance_description": {
+          "type": "string",
+          "description": "Additional details if assistance is required"
+        }
+      }
+    },
+    "dietAndNutrition": {
+      "type": "object",
+      "properties": {
+        "special_dietary_requirements": { "type": "string" },
+        "allergies": {
+          "type": "string",
+          "description": "Foods, medications, or other allergies"
+        },
+        "eating_drinking_practices": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["Independent (All Foods)", "Soft Foods Only", "With Adaptive Equipment", "Requires Assistance and/or Supervision"]
+          },
+          "description": "Checkboxes on the form; select all that apply."
+        },
+        "adaptive_equipment_description": { "type": "string" },
+        "assistance_supervision_description": { "type": "string" }
+      }
+    },
+    "personalCareMotorCoordination": {
+      "type": "object",
+      "properties": {
+        "fine_motor_impairments": {
+          "type": "string",
+          "description": "Include options for assistance (hand over hand, modified utensils, etc.)"
+        },
+        "toileting_menstrual_care": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["Independent", "Occasional or Regular Reminders", "Requires Assistance"]
+          }
+        },
+        "toileting_assistance_description": { "type": "string" }
+      }
+    },
+    "prescription_medication": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "medication_name": { "type": "string" },
+          "time_administered": { "type": "string" },
+          "dosage": { "type": "string" }
+        },
+        "description": "Table in form each row represents one entry"
+      },
+      "description": "Supports multiple medication entries"
+    }
+  }
+}

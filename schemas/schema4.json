@@ -1,0 +1,61 @@
+{
+  "type": "object",
+  "properties": {
+    "communicationAndSocialLife": {
+      "type": "object",
+      "properties": {
+        "clearly_communicates": {
+          "type": "boolean",
+          "description": "Does the applicant clearly communicate their wants and needs?; Checkboxes on the form."
+        },
+        "speech_description": {
+          "type": "string",
+          "enum": ["Easily understood by everyone", "Understood by those familiar with them", "Limited verbal ability", "Non-verbal"],
+          "description": "Which most accurately describes the applicant's speech?; Checkboxes on the form."
+        },
+        "easiest_expression_methods": {
+          "type": "object",
+          "properties": {
+            "methods": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["Speech", "Sign language", "Gesturing", "Communication", "Other"]
+              },
+              "description": "Checkboxes on the form; select all that apply."
+            },
+            "other_description": {
+              "type": "string"
+            }
+          },
+          "description": "What form of communication is the easiest way for the applicant to express themselves to others?"
+        },
+        "easiest_understanding_methods": {
+          "type": "object",
+          "properties": {
+            "methods": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["Speech", "Sign language", "Gesturing", "Communication", "Other"]
+              },
+              "description": "Checkboxes on the form; select all that apply."
+            },
+            "other_description": {
+              "type": "string"
+            }
+          },
+          "description": "What form of communication makes it easiest for the applicant to understand others?"
+        },
+        "communication_considerations": {
+          "type": "string",
+          "description": "Are there any considerations that we should make when communicating with the applicant?"
+        },
+        "currently_receives_therapies": {
+          "type": "string",
+          "description": "Does the applicant currently receive any therapies? If so, please briefly describe their current goals so we can help provide consistent standards for the applicant's communication while they're in program."
+        }
+      }
+    }
+  }
+}

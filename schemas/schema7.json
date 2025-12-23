@@ -1,0 +1,40 @@
+{
+  "type": "object",
+  "properties": {
+    "behaviorAndPersonality": {
+      "type": "object",
+      "properties": {
+        "behavior_management_plan": {
+          "type": "string",
+          "description": "If any of these behaviors have caused a concern fot the safety of the applicant or other people, is anything currently being done to manage the behavior? This might include a formally implemented Behavior Treatment Plan, an approach to handling stress, therapy, or avoiding particular triggers for the behavior."
+        },
+        "warning_signs_before_behavior": {
+          "type": "string",
+          "description": "Does the applicant have any behaviors that come before the harmful behavior? What warning signs are exhibited by the applicant that would help us deescalate the situation before it becomes unsafe?"
+        },
+        "social_interaction_preference": {
+          "type": "string",
+          "enum": [
+            "The applicant enjoys interacting with others",
+            "The applicant prefers to spend time by themselves",
+            "The applicant is withdrawn at first, but outgoing once they are comfortable in a situation"
+          ],
+          "description": "Check the option that you feel is most accurate:"
+        },
+        "preferred_environment": {
+          "type": "string",
+          "enum": ["Calm, low stimulus and relaxing", "Active, stimulating and engaging"],
+          "description": "What sort of environment does the applicant prefer most of the time?"
+        },
+        "sensory_sensitivities": {
+          "type": "string",
+          "description": "Does the applicant have any sensitivity to light, sound, touch, or other sensory perceptions that we might consider in order to create a positive and comfortable environment for them?"
+        },
+        "enjoyable_activities": {
+          "type": "string",
+          "description": "What are some activities that the applicant enjoys, or that they might enjoy if given the opportunity? This might include participation in arts programs (like painting, photography, or theatre), regular physical exercise, volunteering in the community, or something that they've expressed interest in the past. Please be as specific as possible."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,84 @@
+{
+  "type": "object",
+  "properties": {
+    "demographics": {
+      "type": "object",
+      "properties": {
+        "general": {
+          "type": "object",
+          "properties": {
+            "member_id_code": { "type": "string", "description": "Office use only" },
+            "authorization_start_date": { "type": "string", "description": "Office use only" },
+            "date_of_birth": { "type": "string" },
+            "address": {
+              "type": "object",
+              "properties": {
+                "street": { "type": "string" },
+                "city": { "type": "string" },
+                "state": { "type": "string" },
+                "zip_code": { "type": "string" },
+                "phone": { "type": "string" }
+              }
+            },
+            "race": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["Caucasian/White", "Black/African American", "Native Hawaiian/Other Pacific Islander", "American Indian/Alaskan Native", "Asian", "Other Multi-Racial"]
+              },
+              "description": "Checkboxes on the form; select all that apply."
+            },
+            "ethnicity": {
+              "type": "string",
+              "enum": ["Hispanic", "Non-Hispanic"],
+              "description": "Checkboxes on the form"
+            }
+          }
+        },
+        "disability": {
+          "type": "object",
+          "properties": {
+            "primary_diagnosis": { "type": "string" },
+            "secondary_diagnosis": { "type": "string" },
+            "disability_types": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["Physical Disability (PD)", "PD Re: Work", "PD Re: Transportation", "Developmental Disability (DD)", "DD Re: Work", "DD Re: Transportation", "No Disability", "Other"]
+              },
+              "description": "Checkboxes on the form; select all that apply."
+            }
+          }
+        },
+        "resources": {
+          "type": "object",
+          "properties": {
+            "benefits": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["Social Security", "SSI", "SSDI", "AHCCS", "Other:", "TANF", "Food Stamps", "General Assistance", "Veteran's Compensation"]
+              },
+              "description": "PLEASE CHECK ALL BENEFITS PARTICIPANT RECEIVES; Checkboxes on the form, select all that apply."
+            },
+            "other_benefits_specify": { "type": "string" }
+          }
+        },
+        "household": {
+          "type": "object",
+          "properties": {
+            "residential_setting": {
+              "type": "string",
+              "enum": ["Family (Of Origin) Home", "Group Supported Living (Group Home)", "Adult Developmental Home (ADH)", "Individually Designed Living Arrangement (IDLA)"],
+              "description": "TYPE OF RESIDENTIAL SETTING; Checkboxes on the form."
+            },
+            "household_size": {
+              "type": "integer",
+              "description": "TOTAL NUMBER OF INDIVIDUALS LIVING IN THE HOUSEHOLD INCLUDING PARTICIPANT"
+            }
+          }
+        }
+      }
+    }
+  }
+}

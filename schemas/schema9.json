@@ -1,0 +1,75 @@
+{
+  "type": "object",
+  "properties": {
+    "Learning_and_Personal_Growth": {
+      "type": "object",
+      "properties": {
+        "academicAndLifeSkills": {
+          "type": "object",
+          "properties": {
+            "skills_to_improve": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "Reading",
+                  "Writing",
+                  "Math",
+                  "Money management",
+                  "Communicating with others more clearly",
+                  "Communicating with others in a more positive way",
+                  "Cooking",
+                  "Cleaning (house work)",
+                  "Safety skills",
+                  "Other"
+                ]
+              },
+              "description": "Select all that apply."
+            },
+            "other_description": {
+              "type": "string",
+              "description": "If 'Other' is selected, specify the skill."
+            },
+            "description": "Which academic and life skills would be most beneficial for the applicant to spend time improving? Check all that apply:"
+          }
+        },
+        "teaching_techniques": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["Hand over hand instruction", "Step by step spoken instructions", "Step by step written instructions", "Instructor modeling", "Peer modeling", "Self video modeling"]
+          },
+          "description": "Which teaching techniques tend to be the most effective for the applicant when learning a new skill? Check all that apply:"
+        },
+        "instructional_steps_followed": {
+          "type": "integer",
+          "description": "How many instructional steps can the applicant follow at a time?"
+        },
+        "other_teaching_techniques": {
+          "type": "string",
+          "description": "Please describe any other teaching techniques that might be effective:"
+        },
+        "program_goals": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Have something to do during the day",
+              "Enjoy being in a fun, active, positive environment",
+              "Make new friends",
+              "Increase self-esteem",
+              "Learn new daily living skills",
+              "Learn new academic skills",
+              "Learn new work skills",
+              "Earn a paycheck",
+              "Work in one of our community enclaves",
+              "Develop the skills to find a job independently",
+              "Develop the skills to live independently"
+            ],
+            "description": "What would the applicant most like to get out of their time at The Opportunity Tree? Some of these goals may be achieved within a few weeks of being in the program, while others may take several years. Consider what some of those short term goals might be, as well as some long term goals (in the next 5-10 years); select all that apply."
+          }
+        }
+      }
+    }
+  }
+}

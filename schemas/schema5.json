@@ -1,0 +1,55 @@
+{
+  "type": "object",
+  "properties": {
+    "seizureInformation": {
+      "type": "object",
+      "properties": {
+        "history_of_seizures": {
+          "type": "boolean",
+          "description": "Does the applicant have any history of seizures?; Checkboxes on the form."
+        },
+        "seizure_activity_past_5_years": {
+          "type": "boolean",
+          "description": "Has the applicant had any seizure activity in the past 5 years?; Checkboxes on the form."
+        },
+        "last_seizure_date": {
+          "type": "string",
+          "description": "When (month/year) of the last seizure?"
+        },
+        "seizure_control_with_medication": {
+          "type": "string",
+          "enum": ["Completely controlled", "Partially controlled", "Not controlled"],
+          "description": "Are the seizures currently being controlled with medication?; Checkboxes on the form."
+        },
+        "seizure_frequency": {
+          "type": "string",
+          "description": "How frequently the applicant has seizures (times per day, week, month, or year)?"
+        },
+        "seizure_duration_before_intervention": {
+          "type": "string",
+          "description": "How long can a seizure last before medical intervention becomes necessary?"
+        },
+        "antecedents_to_seizure": {
+          "type": "string",
+          "description": "Describe any antecedents to a seizure:"
+        },
+        "post_seizure_behavior_changes": {
+          "type": "string",
+          "description": "Is there any noticeable changes in behavior after a seizure (e.g. groggy, confused, irritable, etc)?"
+        },
+        "typical_seizure_presentation": {
+          "type": "string",
+          "description": "How does a seizure typically present itself? Please describe the physical characteristics, and the typical duration:"
+        },
+        "emergency_medical_interventions": {
+          "type": "string",
+          "description": "Describe medical interventions that are appropriate and available in an emergency (nerve stimulator, medication, length of seizure before calling paramedics, etc.)."
+        },
+        "other_seizure_info": {
+          "type": "string",
+          "description": "Please discuss any other information relating to seizures that is important for the individual's safety?"
+        }
+      }
+    }
+  }
+}

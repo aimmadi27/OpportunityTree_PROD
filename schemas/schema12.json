@@ -1,0 +1,64 @@
+{
+  "type": "object",
+  "properties": {
+    "special_fluid_intake_needs": {
+      "type": "object",
+      "properties": {
+        "can_request_fluids": { "type": "boolean", "description": "Can the resident obtain / request fluids?" },
+        "system_if_cannot_request": { "type": "string", "description": "If no, specify system to ensure adequate fluids are provided:" },
+        "nutritional_recommendations": { "type": "string", "description": "Specify medical / nutritional fluid recommendations (if applicable):" }
+      }
+    },
+    "adaptive_equipment_facility_adaptations": {
+      "type": "object",
+      "properties": {
+        "adaptive_equipment": {
+          "type": "boolean",
+          "description": "Adaptive Equipment (i.e. Glasses, hearing aids, wheelchairs, communication devices, etc.):"
+        },
+        "adaptive_equipment_list": { "type": "string", "description": "List:" },
+        "adaptive_equipment_instructions": { "type": "string", "description": "Special Instructions:" },
+        "protective_devices": { "type": "boolean", "description": "Protective Devices:" },
+        "protective_devices_list": { "type": "string", "description": "List:" },
+        "facility_adaptations": {
+          "type": "boolean",
+          "description": "Facility Adaptations (i.e. Ramps, Plexiglas windows, grab bars, etc.):"
+        },
+        "facility_adaptations_list": { "type": "string", "description": "List:" }
+      },
+      "description": "ADAPTIVE EQUIPMENT, PROTECTIVE DEVICES, AND FACILITY ADAPTATIONS"
+    },
+    "resident_name": { "type": "string", "description": "RESIDENT NAME:" },
+    "lifting_carrying_position": {
+      "type": "object",
+      "properties": {
+        "special_instructions_required": { "type": "boolean", "description": "SPECIAL INSTRUCTIONS FOR LIFTING, CARRYING, AND POSITIONING:" },
+        "instructions_specify": { "type": "string", "description": "If YES, specify:" },
+        "equipment": { "type": "string" },
+        "time_schedules": { "type": "string" }
+      }
+    },
+    "healthcare_issues": {
+      "type": "object",
+      "properties": {
+        "btp": { "type": "boolean" },
+        "btp_target_behaviors": { "type": "string", "description": "IF YES, TARGET BEHAVIORS:" },
+        "other_interfering_behaviors": { "type": "string", "description": "Other interfering behaviors not requiring BTP:" }
+      }
+    },
+    "other_healthcare_needs": {
+      "type": "string",
+      "description": "OTHER ADDITIONAL HEALTH CARE NEEDS/ROUTINES (i.e. tooth brushing, flossing, nail care, etc.): "
+    },
+    "grooming_personal_care": {
+      "type": "object",
+      "properties": {
+        "special_instructions_bathing": { "type": "boolean", "description": "SPECIAL INSTRUCTIONS FOR BATHING:" },
+        "methods": { "type": "string" },
+        "products": { "type": "string" },
+        "supervision": { "type": "string" },
+        "gender_preference": { "type": "string", "enum": ["Male", "Female", "No Preference"] }
+      }
+    }
+  }
+}

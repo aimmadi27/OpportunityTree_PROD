@@ -1,0 +1,76 @@
+{
+  "type": "object",
+  "properties": {
+    "grooming_personal_care": {
+      "type": "object",
+      "properties": {
+        "special_instructions_bathing": { "type": "boolean", "description": "SPECIAL INSTRUCTIONS FOR BATHING:" },
+        "methods": { "type": "string" },
+        "products": { "type": "string" },
+        "supervision": { "type": "string" },
+        "gender_preference": { "type": "string", "enum": ["Male", "Female", "No Preference"] }
+      }
+    },
+    "communication": {
+      "type": "object",
+      "properties": {
+        "express_wants_needs": {
+          "type": "boolean",
+          "description": "Can resident express wants and needs:"
+        },
+        "communication_type": {
+          "type": "string",
+          "description": "Type of Communication (i.e. verbal, sign, gestures, augmentative devices, etc.):"
+        },
+        "communication_steps": {
+          "type": "string",
+          "description": "If NO, steps to take to meet resident's needs:"
+        }
+      }
+    },
+    "special_medical_monitoring": {
+      "type": "object",
+      "properties": {
+        "labs": {
+          "type": "object",
+          "properties": {
+            "special_lab_work_required": {
+              "type": "boolean",
+              "description": "SPECIAL LAB WORK REQUIRED (i.e. Lithium levels, Dilantin levels, thyroid, etc.)"
+            },
+            "lab_work_specify": { "type": "string", "description": "Specify:" },
+            "lab_work_frequency": { "type": "string", "description": "Frequency:" }
+          }
+        },
+        "seizure_medication": {
+          "type": "object",
+          "properties": {
+            "seizure_medication": { "type": "boolean" },
+            "seizure_documented": { "type": "boolean" },
+            "seizure_specify": { "type": "string", "description": "If YES, specify:" }
+          }
+        },
+        "blood_pressure_medication": {
+          "type": "object",
+          "properties": {
+            "bp_medication": { "type": "boolean", "description": "BLOOD PRESSURE MEDICATION:" },
+            "bp_parameters": { "type": "boolean", "description": "Parameters established by physician:" },
+            "bp_monitoring": { "type": "string", "description": "What monitoring techniques are used (i.e. frequency, ranges, etc.):" },
+            "bp_procedures": {
+              "type": "string",
+              "description": "If blood pressure is out of established ranges, what procedures should be implemented:"
+            }
+          }
+        },
+        "diabetic": {
+          "type": "object",
+          "properties": {
+            "diabetic_status": { "type": "boolean", "description": "DIABETIC:" },
+            "diabetic_frequency": { "type": "string", "description": "Frequency of blood sugar levels:" },
+            "diabetic_parameters": { "type": "string", "description": "Parameters established by physician:" }
+          }
+        }
+      }
+    }
+  }
+}

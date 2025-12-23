@@ -1,0 +1,58 @@
+{
+  "type": "object",
+  "properties": {
+    "behaviorAndPersonality": {
+      "type": "object",
+      "properties": {
+        "age_appropriate_social_skills": {
+          "type": "boolean",
+          "description": "Does the applicant exhibit age appropriate social skills?"
+        },
+        "non_age_appropriate_behavior_description": {
+          "type": "string",
+          "description": "If no, describe the behavior that is not age appropriate:"
+        },
+        "behavioral_concerns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "concern_type": {
+                "type": "string",
+                "enum": [
+                  "Hurtful to self (suicidal)",
+                  "Hurtful to others",
+                  "Destructive to property",
+                  "Repetitive behavior",
+                  "Withdrawn or inattentive behavior",
+                  "Running away",
+                  "Verbal aggression",
+                  "Physical aggression",
+                  "Pica",
+                  "Fall frequently",
+                  "Lacks stranger danger skills",
+                  "Risk of exploitation",
+                  "Other:"
+                ]
+              },
+              "description": {
+                "type": "string",
+                "description": "Description of the behavior"
+              },
+              "frequency": {
+                "type": "string",
+                "description": "Frequency (times per day, week, month, or year)"
+              }
+            },
+            "description": "Table in form each row represents one entry"
+          },
+          "description": "Please indicate which of the following have ever been concerns for the applicant. Check all that apply."
+        },
+        "context_of_behavior": {
+          "type": "string",
+          "description": "If yes to any of the above, please describe the context of the behavior, including when the last instance was, possible causes of the behavior, and effective techniques to resolve the situation. Feel free to include additional pieces of paper to give the most detailed information possible."
+        }
+      }
+    }
+  }
+}

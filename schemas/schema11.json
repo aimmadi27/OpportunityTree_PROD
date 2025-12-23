@@ -1,0 +1,71 @@
+{
+  "type": "object",
+  "properties": {
+    "surgeries_hospitalizations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": { "type": "string" },
+          "diagnosis": { "type": "string" },
+          "hospital": { "type": "string" },
+          "physician_or_therapist": { "type": "string" }
+        },
+        "description": "Table in form each row represents one entry"
+      },
+      "description": "Surgeries, Hospitalizations, Treatments, and Significant Accident Injuries:"
+    },
+    "applicant_info": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Resident's Name:" },
+        "sex": { "type": "string", "enum": ["Male", "Female"], "description": "Sex:" },
+        "date_of_birth": { "type": "string", "description": "Date of Birth:" }
+      }
+    },
+    "health_medical": {
+      "type": "object",
+      "properties": {
+        "allergies": {
+          "type": "object",
+          "properties": {
+            "allergy_name": { "type": "string", "description": "ALLERGIES (Specify):" },
+            "signs_and_symptoms": { "type": "string", "description": "Signs and Symptoms:" },
+            "steps_if_signs_appear": { "type": "string", "description": "Steps to be taken if signs appear:" }
+          }
+        },
+        "medical_conditions": {
+          "type": "object",
+          "properties": {
+            "condition_name": { "type": "string", "description": "MEDICAL CONDITIONS (Specify):" },
+            "signs_and_symptoms": { "type": "string", "description": "Signs and Symptoms:" },
+            "steps_if_signs_appear": { "type": "string", "description": "Steps to be taken if signs appear:" }
+          }
+        }
+      },
+      "description": "HEALTH/MEDICAL"
+    },
+    "nutritional_needs": {
+      "type": "object",
+      "properties": {
+        "food_preparation": { "type": "string", "enum": ["Regular", "Bite-size", "Puree", "Other"] },
+        "food_preparation_other": { "type": "string" },
+        "special_diet": { "type": "boolean" },
+        "special_diet_specify": { "type": "string", "description": "Specify:" },
+        "nutritional_supplements": { "type": "boolean" },
+        "nutritional_supplements_specify": { "type": "string", "description": "Specify:" },
+        "choke_or_gag_reflex": { "type": "boolean" },
+        "mealtime_assistance_required": { "type": "boolean", "description": "Assistance required during mealtimes (i.e. adapted utensils, positioning, etc.):" },
+        "mealtime_assistance_list": { "type": "string", "description": "List:" }
+      }
+    },
+    "special_fluid_intake_needs": {
+      "type": "object",
+      "properties": {
+        "can_request_fluids": { "type": "boolean", "description": "Can the resident obtain / request fluids?" },
+        "system_if_cannot_request": { "type": "string", "description": "If no, specify system to ensure adequate fluids are provided:" },
+        "nutritional_recommendations": { "type": "string", "description": "Specify medical / nutritional fluid recommendations (if applicable):" }
+      }
+    }
+  }
+}

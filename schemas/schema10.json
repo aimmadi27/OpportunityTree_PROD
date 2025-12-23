@@ -1,0 +1,180 @@
+{
+  "type": "object",
+  "properties": {
+    "medicalHistory": {
+      "type": "object",
+      "properties": {
+        "individual_name": {
+          "type": "string",
+          "description": "Individual:"
+        },
+        "updated_date": {
+          "type": "string",
+          "description": "Updated:"
+        },
+        "type_of_disability": {
+          "type": "object",
+          "properties": {
+            "disabilities": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["Autism", "Epilepsy", "Cerebral Palsy", "Cognitive Impairment", "Other (explain):"]
+              }
+            },
+            "other_description": {
+              "type": "string",
+              "description": "If 'Other' selected, specify disability."
+            }
+          },
+          "description": "Type of Disability; checkboxes on form select all that apply."
+        },
+        "developmental_history": {
+          "type": "string",
+          "description": "Developmental History:"
+        },
+        "birth_date": {
+          "type": "string",
+          "description": "Birth date:"
+        },
+        "family_medical_history": {
+          "type": "object",
+          "properties": {
+            "conditions": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["Cancer", "Diabetes", "Heart Disease", "High Blood Pressure", "Mental Illness", "Other (explain):"]
+              },
+              "description": "Checkboxes on form check all that apply."
+            },
+            "other_description": {
+              "type": "string",
+              "description": "If 'Other' selected, specify condition."
+            }
+          },
+          "description": "Family Medical History: If a member of the family has had any of the following, check the applicable box(es)."
+        },
+        "individual_medical_history": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "Anemia",
+              "Asthma",
+              "Blood Clots",
+              "Cancer",
+              "Chicken Pox",
+              "Chronic Bronchitis",
+              "Chronic Ear Infection",
+              "Chronic Nose Bleeds",
+              "Diabetes",
+              "Encephalitis",
+              "Gall Bladder Problems",
+              "Gastritis",
+              "Head Trauma/Injury",
+              "Heart Disease/Murmur",
+              "Hepatitis",
+              "High Blood Pressure",
+              "High Fever",
+              "Immune Suppressed Disorder",
+              "Liver Disorder",
+              "Measles",
+              "Meningitis",
+              "Mental Illness",
+              "Migraine Headaches",
+              "Mumps",
+              "Pneumonia",
+              "Polio",
+              "Rheumatic Fever",
+              "Substance Abuse/Addiction",
+              "Thyroid Disorder",
+              "Tuberculosis",
+              "Ulcers",
+              "Valley Fever",
+              "Venereal Disease"
+            ]
+          },
+          "description": "If the individual has or has had any of the following, please check as applicable; checkboxes on form select all that apply."
+        },
+        "immunizations": {
+          "type": "object",
+          "properties": {
+            "vaccine": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "enum": ["Tetanus", "Hepatitis B Screening", "DPT", "Measles", "PPD (TB Screening)", "Hepatitis B Vaccination", "Polio", "Other"]
+                  },
+                  "date": {
+                    "type": "string",
+                    "description": "Date of immunization if available"
+                  }
+                }
+              }
+            },
+            "other_description": {
+              "type": "string",
+              "description": "If 'Other' selected, specify the immunization name and date"
+            }
+          }
+        },
+        "allergies": {
+          "type": "object",
+          "properties": {
+            "has_allergies": {
+              "type": "boolean",
+              "description": "Checkboxes on form"
+            },
+            "allergy_details": {
+              "type": "string",
+              "description": "If 'Yes', specify:"
+            }
+          },
+          "description": "Allergies:"
+        },
+        "dental_history": {
+          "type": "object",
+          "properties": {
+            "gum_disease": {
+              "type": "boolean"
+            },
+            "orthodontic_appliances": {
+              "type": "boolean"
+            },
+            "orthodontic_appliances_description": {
+              "type": "string",
+              "description": "Specify details if orthodontic appliances are used"
+            }
+          },
+          "description": "Dental History:"
+        },
+        "current_medications": {
+          "type": "string",
+          "description": "Current Medications:"
+        },
+        "last_physical_exam_date": {
+          "type": "string",
+          "description": "Date of Last Physical Examination:"
+        },
+        "surgeries_hospitalizations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "date": { "type": "string" },
+              "diagnosis": { "type": "string" },
+              "hospital": { "type": "string" },
+              "physician_or_therapist": { "type": "string" }
+            },
+            "description": "Table in form each row represents one entry"
+          },
+          "description": "Surgeries, Hospitalizations, Treatments, and Significant Accident Injuries:"
+        }
+      }
+    }
+  }
+}
