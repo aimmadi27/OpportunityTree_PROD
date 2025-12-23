@@ -11,8 +11,7 @@ GOOGLE_AUTHORIZATION_ENDPOINT = "https://accounts.google.com/o/oauth2/v2/auth"
 GOOGLE_TOKEN_ENDPOINT = "https://oauth2.googleapis.com/token"
 OAUTH_SCOPE = "openid email profile"
 
-# ✅ Use env var so local + deployed both work
-REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:8501/")
+REDIRECT_URI = os.getenv("GOOGLE_REDIRECT_URI", "https://handwritingextraction.streamlit.app/")
 
 @dataclass
 class CurrentUser:
@@ -46,9 +45,7 @@ def _oauth_session(client_id: str) -> OAuth2Session:
         scope=OAUTH_SCOPE,
         redirect_uri=REDIRECT_URI,
     )
-
-
-# ✅ Global store that survives Streamlit session resets
+    
 @st.cache_resource
 def _pkce_store():
     # state -> {"verifier": str, "ts": float}
