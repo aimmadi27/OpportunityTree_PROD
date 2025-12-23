@@ -2,190 +2,282 @@ import streamlit as st
 import json
 import pathlib
 import tempfile
-import os
+import pandas as pd
 from dotenv import load_dotenv
 from pdf2image import convert_from_path
-import pandas as pd
 
 from ocr_extractor import extract_page_json, merge_page_results
 from llm_handler import LLMHandler
+from auth import start_google_login, handle_oauth_callback, get_current_user, logout
 
-st.set_page_config(page_title="Handwritten Form Extractor", page_icon="📝", layout="wide")
-
-st.markdown("""
-    <style>
-        body { background-color: #f5f7fa; }
-        .main {
-            background-color: #ffffff;
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0px 4px 15px rgba(0,0,0,0.1);
-        }
-        h1, h2, h3 {
-            color: #2a4365;
-        }
-        .stButton>button {
-            background-color: #2b6cb0;
-            color: white;
-            border-radius: 10px;
-            padding: 0.6em 1.2em;
-            font-weight: 600;
-            border: none;
-        }
-        .stButton>button:hover {
-            background-color: #2c5282;
-        }
-        .section-box {
-            background-color: #f7fafc;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 15px;
-            border: 1px solid #e2e8f0;
-        }
-    </style>
-""", unsafe_allow_html=True)
-
-st.title("📝 Handwritten Form Extractor")
-st.caption("Extract, review, and export handwritten form data powered by LLMs.")
-
-
+st.set_page_config(
+    page_title="Handwritten Form Extractor",
+    page_icon="📝",
+    layout="wide",
+)
 load_dotenv()
 
+def init_state():
+    st.session_state.pdf_pages = None
+    st.session_state.last_pdf = None
+    st.session_state.selected_pages = set()
+    st.session_state.page_order = []
+    st.session_state.page_schemas = {}
+    st.session_state.pages_confirmed = False
+    st.session_state.schemas_confirmed = False
+    st.session_state.extraction_complete = False
+    st.session_state.extracted_data = None
+
+if "initialized" not in st.session_state:
+    init_state()
+    st.session_state.initialized = True
+
+q = st.query_params
+user = None
+
+if "code" in q and "state" in q:
+    user = handle_oauth_callback()
+
+if not user:
+    user = get_current_user()
+
+if not user:
+    st.title("Sign in to continue")
+    st.caption("Use your Google account.")
+
+    if "_auth_url" not in st.session_state:
+        st.session_state["_auth_url"] = start_google_login()
+
+    st.link_button("Continue with Google", st.session_state["_auth_url"], type="primary")
+    st.stop()
+
+with st.sidebar:
+    if user.picture:
+        st.image(user.picture, width=64)
+    st.markdown(f"**{user.name}**")
+    st.caption(user.email)
+
+    st.divider()
+
+    uploaded_pdf = st.file_uploader("📤 Upload filled PDF form", type=["pdf"])
+
+    if st.button("Log out"):
+        logout()
+        st.rerun()
+
+st.title("📝 Handwritten Form Extractor")
+st.caption("Upload → select pages → assign schema → extract → review → export")
+
+# -------------------------------------------------
+# INIT LLM
+# -------------------------------------------------
 try:
     llm = LLMHandler()
 except Exception as e:
-    st.error(f"⚠️ Failed to initialize LLM: {e}")
+    st.error(f"Failed to initialize LLM: {e}")
     st.stop()
 
+# -------------------------------------------------
+# LOAD SCHEMAS
+# -------------------------------------------------
+SCHEMA_DIR = "./schemas"
+schema_files = sorted(pathlib.Path(SCHEMA_DIR).glob("*.json"))
+if not schema_files:
+    st.error("No schemas found in ./schemas/")
+    st.stop()
 
-uploaded_pdf = st.file_uploader("### Upload a filled PDF form", type=["pdf"])
+schemas = {f.stem: json.load(open(f, "r", encoding="utf-8")) for f in schema_files}
 
-if uploaded_pdf:
-    temp_pdf_path = pathlib.Path(f"./temp_{uploaded_pdf.name}")
-    with open(temp_pdf_path, "wb") as f:
-        f.write(uploaded_pdf.read())
+# -------------------------------------------------
+# HANDLE PDF UPLOAD
+# -------------------------------------------------
+if uploaded_pdf and uploaded_pdf.name != st.session_state.last_pdf:
+    init_state()
 
-    schema_path = pathlib.Path("./ocr_schema.json")
-    if not schema_path.exists():
-        st.error("⚠️ Schema file (ocr_schema.json) not found.")
+    temp_pdf = pathlib.Path(f"./temp_{uploaded_pdf.name}")
+    temp_pdf.write_bytes(uploaded_pdf.read())
+
+    pages = convert_from_path(temp_pdf, dpi=150)
+    st.session_state.pdf_pages = pages
+    st.session_state.last_pdf = uploaded_pdf.name
+    st.session_state.page_order = list(range(1, len(pages) + 1))
+    st.session_state.selected_pages = set(st.session_state.page_order)
+
+# -------------------------------------------------
+# TABS
+# -------------------------------------------------
+tab_upload, tab_pages, tab_review, tab_export = st.tabs([
+    "📤 Upload",
+    "📄 Pages & Schema",
+    "✏️ Review",
+    "📥 Export",
+])
+
+# -------------------------------------------------
+# TAB 1 — UPLOAD
+# -------------------------------------------------
+with tab_upload:
+    if not uploaded_pdf:
+        st.info("Upload a PDF to begin.")
+    else:
+        st.success(f"Loaded **{uploaded_pdf.name}** ({len(st.session_state.pdf_pages)} pages)")
+
+# -------------------------------------------------
+# TAB 2 — PAGE SELECTION + SCHEMA
+# -------------------------------------------------
+with tab_pages:
+    if not st.session_state.pdf_pages:
+        st.info("Upload a PDF first.")
         st.stop()
 
-    with open(schema_path, "r", encoding="utf-8") as f:
-        schema = json.load(f)
-    schema_text = json.dumps(schema, indent=2, ensure_ascii=False)
+    st.subheader("📄 Select Pages")
 
-    if "extracted_data" not in st.session_state or st.session_state.get("last_pdf") != uploaded_pdf.name:
-        pages = convert_from_path(temp_pdf_path, dpi=150)
-        st.success(f"✅ Converted {len(pages)} pages successfully.")
+    pages = st.session_state.pdf_pages
+    new_selection = set()
 
-        all_page_data = []
-        progress = st.progress(0)
-        status = st.empty()
+    cols = st.columns(3)
+    for idx, page_num in enumerate(st.session_state.page_order):
+        with cols[idx % 3]:
+            st.image(pages[page_num - 1], caption=f"Page {page_num}")
+            if st.checkbox(
+                f"Include Page {page_num}",
+                value=(page_num in st.session_state.selected_pages),
+                key=f"page_{page_num}",
+                disabled=st.session_state.pages_confirmed,
+            ):
+                new_selection.add(page_num)
 
-        for i, page in enumerate(pages, start=1):
-            status.write(f"🔍 Processing page {i}/{len(pages)} ...")
-
-            with tempfile.NamedTemporaryFile(suffix=".png") as tmp:
-                page.save(tmp.name, "PNG")
-                with open(tmp.name, "rb") as img_file:
-                    img_bytes = img_file.read()
-                try:
-                    page_json = extract_page_json(llm, img_bytes, i, schema_text)
-                except Exception as e:
-                    st.warning(f"⚠️ LLM error on page {i}: {e}")
-                    page_json = {}
-                all_page_data.append(page_json)
-
-            progress.progress(i / len(pages))
-
-        final_json = merge_page_results(all_page_data)
-        st.success("✅ Extraction complete!")
-
-        st.session_state.extracted_data = final_json
-        st.session_state.last_pdf = uploaded_pdf.name
-
+    if not st.session_state.pages_confirmed:
+        if st.button("✅ Confirm Selected Pages", type="primary"):
+            st.session_state.selected_pages = new_selection
+            st.session_state.pages_confirmed = True
+            st.rerun()
     else:
-        final_json = st.session_state.extracted_data
-        st.success("✅ Using previously extracted results (no extra Gemini calls).")
+        st.success("Pages confirmed.")
 
-    st.markdown("### Review and Edit Extracted Data")
-    st.caption("You can make corrections before exporting to Therap.")
+    st.divider()
+    if not st.session_state.pages_confirmed:
+        st.stop()
 
+    st.subheader("🧩 Assign Schema per Page")
+
+    for page_num in sorted(st.session_state.selected_pages):
+        col1, col2 = st.columns([1, 2])
+        with col1:
+            st.image(pages[page_num - 1], caption=f"Page {page_num}", width=180)
+        with col2:
+            st.session_state.page_schemas[page_num] = schemas[
+                st.selectbox(
+                    "Schema",
+                    list(schemas.keys()),
+                    key=f"schema_{page_num}",
+                    disabled=st.session_state.schemas_confirmed,
+                )
+            ]
+
+    if not st.session_state.schemas_confirmed:
+        if st.button("✅ Confirm Schemas", type="primary"):
+            st.session_state.schemas_confirmed = True
+            st.rerun()
+    else:
+        st.success("Schemas confirmed.")
+
+    st.divider()
+
+    if st.session_state.schemas_confirmed and not st.session_state.extraction_complete:
+        if st.button("🚀 Run Extraction", type="primary"):
+            all_page_data = []
+            progress = st.progress(0)
+            status = st.empty()
+
+            selected = sorted(st.session_state.selected_pages)
+
+            for idx, page_num in enumerate(selected, start=1):
+                status.write(f"Processing page {page_num}")
+                page = pages[page_num - 1]
+                schema = st.session_state.page_schemas[page_num]
+
+                with tempfile.NamedTemporaryFile(suffix=".png") as tmp:
+                    page.save(tmp.name, "PNG")
+                    img_bytes = open(tmp.name, "rb").read()
+
+                page_json = extract_page_json(
+                    llm,
+                    img_bytes,
+                    page_num,
+                    json.dumps(schema),
+                )
+
+                all_page_data.append(page_json)
+                progress.progress(idx / len(selected))
+
+            st.session_state.extracted_data = merge_page_results(all_page_data)
+            st.session_state.extraction_complete = True
+            st.success("Extraction complete.")
+
+# -------------------------------------------------
+# TAB 3 — REVIEW
+# -------------------------------------------------
+with tab_review:
+    if not st.session_state.extraction_complete:
+        st.info("Run extraction first.")
+        st.stop()
+
+    final_json = st.session_state.extracted_data
     edited_data = {}
 
+    def pretty(k):
+        return k.replace("_", " ").title()
+
     for section, fields in final_json.items():
-        
-        if isinstance(fields, dict):
-            with st.expander(f"{section}", expanded=False):
-                section_data = {}
-                for field, value in fields.items():
+        if not isinstance(fields, dict):
+            continue
 
-                    if isinstance(value, bool):
-                        section_data[field] = st.checkbox(field, value=value)
-                    elif isinstance(value, list):
-                        section_data[field] = st.text_area(
-                            field, value=", ".join(map(str, value))
-                        )
-                    elif isinstance(value, dict):
-                        st.markdown(f"**{field}:**")
-                        subdata = {}
-                        for subfield, subval in value.items():
-                            subdata[subfield] = st.text_input(
-                                f"{field} → {subfield}", value=subval or ""
-                            )
-                        section_data[field] = subdata
-                    else:
-                        section_data[field] = st.text_input(field, value=value or "")
-                edited_data[section] = section_data
+        filled = sum(1 for v in fields.values() if v)
+        total = len(fields)
 
-        elif isinstance(fields, list) and fields and isinstance(fields[0], dict):
-            with st.expander(f"{section}", expanded=False):
-                list_items = []
+        with st.expander(f"{pretty(section)} ({filled}/{total})"):
+            col1, col2 = st.columns(2)
+            section_data = {}
+            for i, (field, value) in enumerate(fields.items()):
+                with col1 if i % 2 == 0 else col2:
+                    section_data[field] = st.text_input(
+                        pretty(field),
+                        value=str(value) if value else "",
+                        key=f"{section}_{field}",
+                    )
+            edited_data[section] = section_data
 
-                for idx, item in enumerate(fields, start=1):
-                    st.markdown(f"**Entry {idx}:**")
-                    item_data = {}
+    st.session_state.extracted_data = edited_data
 
-                    for subfield, subval in item.items():
-                        item_data[subfield] = st.text_input(
-                            f"{section} → {subfield} ({idx})",
-                            value=str(subval) if subval is not None else "",
-                            key=f"{section}_{idx}_{subfield}",
-                        )
+# -------------------------------------------------
+# TAB 4 — EXPORT
+# -------------------------------------------------
+with tab_export:
+    if not st.session_state.extraction_complete:
+        st.info("Complete extraction first.")
+        st.stop()
 
-                    list_items.append(item_data)
+    st.subheader("📥 Export")
 
-                edited_data[section] = list_items
-
-        else:
-            edited_data[section] = st.text_input(
-                section, value=str(fields) if fields is not None else ""
-            )
-
-
-    if st.button("Send to Therap"):
-        def flatten_json(data, parent_key='', sep='.'):
-            items = []
-            for k, v in data.items():
-                new_key = f"{parent_key}{sep}{k}" if parent_key else k
+    if st.button("📊 Generate Excel", type="primary"):
+        def flatten(d, parent=""):
+            out = {}
+            for k, v in d.items():
+                nk = f"{parent}.{k}" if parent else k
                 if isinstance(v, dict):
-                    items.extend(flatten_json(v, new_key, sep=sep).items())
+                    out.update(flatten(v, nk))
                 else:
-                    items.append((new_key, v))
-            return dict(items)
+                    out[nk] = v
+            return out
 
-        flat_data = flatten_json(edited_data)
-        df = pd.DataFrame([flat_data])
+        flat = flatten(st.session_state.extracted_data)
+        df = pd.DataFrame([flat])
 
-        excel_path = f"./{temp_pdf_path.stem}_reviewed.xlsx"
-        df.to_excel(excel_path, index=False)
+        out_file = "import_ready.xlsx"
+        df.to_excel(out_file, index=False)
 
-        with open(excel_path, "rb") as f:
-            st.download_button(
-                label="Download Reviewed Excel File",
-                data=f,
-                file_name=f"{temp_pdf_path.stem}_reviewed.xlsx",
-                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
+        with open(out_file, "rb") as f:
+            st.download_button("⬇️ Download Excel", f, file_name=out_file)
 
-        st.success("✅ Data exported successfully! File ready for download.")
+        st.success("Export ready.")
