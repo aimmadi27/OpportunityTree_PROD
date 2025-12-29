@@ -1,0 +1,81 @@
+{
+  "mappings": {
+    "generalInfo.prospective_member_name": "First Name",
+    "generalInfo.main_contact": "",
+    "generalInfo.relationship": "",
+    "generalInfo.date_of_birth": "Birth Date",
+    "generalInfo.primary_phone": "Phone Number",
+    "generalInfo.email": "E-mail",
+    "generalInfo.school_name": "",
+    "generalInfo.referral_source": "",
+    "generalInfo.main_address.street": "Residential Street1",
+    "generalInfo.main_address.city": "Residential City",
+    "generalInfo.main_address.state": "Residential State",
+    "generalInfo.main_address.zip_code": "Residential Zip",
+    "generalInfo.mailing_address.street": "Mailing Street1",
+    "generalInfo.mailing_address.city": "Mailing City",
+    "generalInfo.mailing_address.state": "Mailing State",
+    "generalInfo.mailing_address.zip_code": "Mailing Zip",
+    "generalInfo.gender": "Gender",
+    "generalInfo.school_address.street": "",
+    "generalInfo.school_address.city": "",
+    "generalInfo.school_address.state": "",
+    "generalInfo.school_address.zip_code": "",
+    "generalInfo.yearly_income": "",
+    "generalInfo.preferred_contact_method": "",
+    "generalInfo.primary_language": "",
+    "generalInfo.ethnicity": "Ethnicity",
+    "generalInfo.living_situation": "Living Arrangement",
+    "generalInfo.interpreter_required": "Interpreter Needed",
+    "generalInfo.marital_status": "Marital Status",
+    "generalInfo.veteran_status": "",
+    "generalInfo.disability_status": "",
+    "generalInfo.employment_status": "",
+    "generalInfo.insurance.provider_name": "",
+    "generalInfo.insurance.policy_number": "",
+    "generalInfo.insurance.group_number": "",
+    "generalInfo.emergency_contact.name": "",
+    "generalInfo.emergency_contact.phone": "",
+    "generalInfo.emergency_contact.relationship": "",
+    
+    "behaviorAndPersonality.age_appropriate_social_skills": "",
+    "behaviorAndPersonality.behavior_management_plan": "",
+    
+    "Learning_and_Personal_Growth.academicAndLifeSkills.other_description": "",
+    "Learning_and_Personal_Growth.academicAndLifeSkills.skills_to_improve": "",
+    "Learning_and_Personal_Growth.instructional_steps_followed": "",
+    "Learning_and_Personal_Growth.money_management_skills": "",
+    "Learning_and_Personal_Growth.other_teaching_techniques": "",
+    "Learning_and_Personal_Growth.program_goals": "",
+    "Learning_and_Personal_Growth.reading_comprehension": "",
+    "Learning_and_Personal_Growth.teaching_techniques": "",
+    
+    "medicalHistory.nutritionalNeeds.special_diets": "Dietary Guidelines",
+    "medicalHistory.nutritionalNeeds.food_allergies": "",
+    "medicalHistory.nutritionalNeeds.special_feeding_methods": "",
+    "medicalHistory.nutritionalNeeds.choke_or_gag_reflex": "",
+    "medicalHistory.nutritionalNeeds.mealtime_assistance_required": "",
+    
+    "medicalHistory.specialFluidIntakeNeeds.can_request_fluids": "",
+    
+    "medicalHistory.adaptiveEquipmentAndFacilityAdaptations.adaptive_equipment": "",
+    "medicalHistory.adaptiveEquipmentAndFacilityAdaptations.protective_devices": "",
+    "medicalHistory.adaptiveEquipmentAndFacilityAdaptations.facility_adaptations": "",
+    
+    "medicalHistory.liftingCarryingPositioning.special_instructions_required": "",
+    
+    "medicalHistory.otherHealthCareNeeds": "",
+    
+    "medicalHistory.groomingPersonalCare.special_instructions_bathing": "Bathing Status",
+    "medicalHistory.groomingPersonalCare.supervision_required": "Supervision",
+    "medicalHistory.groomingPersonalCare.gender_preference": "",
+    
+    "medicalHistory.communication.can_express_wants_needs": "",
+    "medicalHistory.specialMedicalMonitoring.special_lab_work_required": "",
+    
+    "communication.can_express_wants_needs": "",
+    "specialMedicalMonitoring.special_lab_work_required": ""
+  },
+
+  "default_behavior": "leave_unmapped_in_extra_file"
+}
