@@ -11,7 +11,16 @@ from pdf2image import convert_from_path
 from ocr_extractor import extract_page_json, merge_page_results
 from llm_handler import LLMHandler
 from auth import start_google_login, handle_oauth_callback, get_current_user, logout
-from pathlib import Path
+
+SCHEMA_DIR = "./schemas"
+
+schemas = {}
+
+for fname in os.listdir(SCHEMA_DIR):
+    if fname.startswith("schema") and fname.endswith(".json"):
+        num = int(fname.replace("schema", "").replace(".json", ""))
+        with open(os.path.join(SCHEMA_DIR, fname)) as f:
+            schemas[num] = json.load(f)
 
 st.set_page_config(
     page_title="Handwritten Form Extractor",
@@ -69,7 +78,6 @@ with st.sidebar:
         st.rerun()
 
 st.title("📝 Handwritten Form Extractor")
-st.caption("Upload → select pages → assign schema → extract → review → export")
 
 try:
     llm = LLMHandler()
@@ -77,13 +85,6 @@ except Exception as e:
     st.error(f"Failed to initialize LLM: {e}")
     st.stop()
 
-SCHEMA_DIR = "./schemas"
-schema_files = sorted(pathlib.Path(SCHEMA_DIR).glob("*.json"))
-if not schema_files:
-    st.error("No schemas found in ./schemas/")
-    st.stop()
-
-schemas = {f.stem: json.load(open(f, "r", encoding="utf-8")) for f in schema_files}
 
 if uploaded_pdf and uploaded_pdf.name != st.session_state.last_pdf:
     init_state()
@@ -120,35 +121,48 @@ with tab_pages:
     st.subheader("📄 Select Pages")
 
     pages = st.session_state.pdf_pages
+    total_pages = len(pages)
+
+    st.session_state.setdefault("selected_pages", set())
+    st.session_state.setdefault("pages_confirmed", False)
+    st.session_state.setdefault("extraction_complete", False)
+
     new_selection = set(st.session_state.selected_pages)
 
     col1, col2, _ = st.columns([1, 1, 6])
     with col1:
         if st.button("Select All"):
-            st.session_state.selected_pages = set(
-                range(1, len(st.session_state.pdf_pages) + 1)
-            )
+            st.session_state.selected_pages = set(range(1, total_pages + 1))
+            st.session_state.pages_confirmed = False
             st.rerun()
 
     with col2:
         if st.button("Deselect All"):
             st.session_state.selected_pages = set()
+            st.session_state.pages_confirmed = False
             st.rerun()
 
     cols = st.columns(3)
-    for idx, page_num in enumerate(st.session_state.page_order):
+    for idx, page_num in enumerate(range(1, total_pages + 1)):
         with cols[idx % 3]:
             st.image(pages[page_num - 1], caption=f"Page {page_num}")
-            if st.checkbox(
+            checked = st.checkbox(
                 f"Include Page {page_num}",
                 value=(page_num in st.session_state.selected_pages),
                 key=f"page_{page_num}",
                 disabled=st.session_state.pages_confirmed,
-            ):
+            )
+            if checked:
                 new_selection.add(page_num)
+            else:
+                new_selection.discard(page_num)
 
     if not st.session_state.pages_confirmed:
         if st.button("Confirm Selected Pages", type="primary"):
+            if not new_selection:
+                st.warning("Select at least one page.")
+                st.stop()
+
             st.session_state.selected_pages = new_selection
             st.session_state.pages_confirmed = True
             st.rerun()
@@ -156,35 +170,11 @@ with tab_pages:
         st.success("Pages confirmed.")
 
     st.divider()
+
     if not st.session_state.pages_confirmed:
         st.stop()
 
-    st.subheader("Assign Schema per Page")
-
-    for page_num in sorted(st.session_state.selected_pages):
-        col1, col2 = st.columns([1, 2])
-        with col1:
-            st.image(pages[page_num - 1], caption=f"Page {page_num}", width=180)
-        with col2:
-            st.session_state.page_schemas[page_num] = schemas[
-                st.selectbox(
-                    "Schema",
-                    list(schemas.keys()),
-                    key=f"schema_{page_num}",
-                    disabled=st.session_state.schemas_confirmed,
-                )
-            ]
-
-    if not st.session_state.schemas_confirmed:
-        if st.button("Confirm Schemas", type="primary"):
-            st.session_state.schemas_confirmed = True
-            st.rerun()
-    else:
-        st.success("Schemas confirmed.")
-
-    st.divider()
-
-    if st.session_state.schemas_confirmed and not st.session_state.extraction_complete:
+    if not st.session_state.extraction_complete:
         if st.button("🚀 Run Extraction", type="primary"):
             all_page_data = []
             progress = st.progress(0)
@@ -195,7 +185,10 @@ with tab_pages:
             for idx, page_num in enumerate(selected, start=1):
                 status.write(f"Processing page {page_num}")
                 page = pages[page_num - 1]
-                schema = st.session_state.page_schemas[page_num]
+
+                schema = schemas.get(page_num)
+                if not schema:
+                    raise ValueError(f"No schema file found for page {page_num}")
 
                 with tempfile.NamedTemporaryFile(suffix=".png") as tmp:
                     page.save(tmp.name, "PNG")
@@ -215,92 +208,63 @@ with tab_pages:
             st.session_state.extraction_complete = True
             st.success("Extraction complete.")
 
+
 with tab_review:
     if not st.session_state.extraction_complete:
         st.info("Run extraction first.")
         st.stop()
 
-    final_json = st.session_state.extracted_data
-    edited_data = {}
+    data = st.session_state.extracted_data
 
     def pretty_label(key: str) -> str:
-        key = key.split(".")[-1]
+        key = str(key).split(".")[-1]
         key = key.replace("_", " ")
         return key.strip().title()
 
-    for section, fields in final_json.items():
+    def render_value(path: str, value):
+        if isinstance(value, bool):
+            return st.checkbox(pretty_label(path), value=value, key=path)
 
-        with st.expander(pretty_label(section), expanded=False):
+        if isinstance(value, dict):
+            edited = {}
+            with st.expander(pretty_label(path), expanded=False):
+                for k, v in value.items():
+                    child_path = f"{path}.{k}" if path else str(k)
+                    edited[k] = render_value(child_path, v)
+            return edited
 
-            if isinstance(fields, dict):
-                section_data = {}
+        if isinstance(value, list):
+            if value and all(isinstance(x, dict) for x in value):
+                edited_list = []
+                with st.expander(pretty_label(path), expanded=False):
+                    for i, item in enumerate(value):
+                        with st.expander(f"{pretty_label(path)} [{i+1}]", expanded=False):
+                            edited_item = {}
+                            for k, v in item.items():
+                                child_path = f"{path}.{i}.{k}"
+                                edited_item[k] = render_value(child_path, v)
+                            edited_list.append(edited_item)
+                return edited_list
 
-                for field, value in fields.items():
+            existing = "\n".join("" if x is None else str(x) for x in value)
+            txt = st.text_area(pretty_label(path), value=existing, key=path, height=120)
+            return [line for line in (l.strip() for l in txt.splitlines()) if line != ""]
 
-                    if isinstance(value, dict):
-                        if "properties" in value and isinstance(value["properties"], dict):
-                            value = value["properties"]
-                        st.markdown(f"**{pretty_label(field)}:**")
-                        subdata = {}
+        if isinstance(value, (int, float)):
+            txt = st.text_input(pretty_label(path), value=str(value), key=path)
+            try:
+                return int(txt) if isinstance(value, int) else float(txt)
+            except:
+                return txt
 
-                        for subfield, subval in value.items():
-                            subdata[subfield] = st.text_input(
-                                pretty_label(subfield),
-                                value=subval or "",
-                                key=f"{section}_{field}_{subfield}"
-                            )
+        return st.text_input(pretty_label(path), value="" if value is None else str(value), key=path)
 
-                        section_data[field] = subdata
+    edited = {}
+    for section, fields in (data or {}).items():
+        edited[section] = render_value(section, fields)
 
-                    elif isinstance(value, bool):
-                        section_data[field] = st.checkbox(
-                            pretty_label(field),
-                            value=value,
-                            key=f"{section}_{field}"
-                        )
-
-                    elif isinstance(value, list):
-                        section_data[field] = st.text_area(
-                            pretty_label(field),
-                            value=", ".join(map(str, value)),
-                            key=f"{section}_{field}"
-                        )
-
-                    else:
-                        section_data[field] = st.text_input(
-                            pretty_label(field),
-                            value=value or "",
-                            key=f"{section}_{field}"
-                        )
-
-                edited_data[section] = section_data
-
-            elif isinstance(fields, list) and fields and isinstance(fields[0], dict):
-                list_items = []
-
-                for idx, item in enumerate(fields, start=1):
-                    st.markdown(f"**Entry {idx}:**")
-                    item_data = {}
-
-                    for subfield, subval in item.items():
-                        item_data[subfield] = st.text_input(
-                            pretty_label(subfield),
-                            value=str(subval) if subval is not None else "",
-                            key=f"{section}_{idx}_{subfield}"
-                        )
-
-                    list_items.append(item_data)
-
-                edited_data[section] = list_items
-
-            else:
-                edited_data[section] = st.text_input(
-                    pretty_label(section),
-                    value=str(fields) if fields is not None else "",
-                    key=f"{section}_value"
-                )
-
-    st.session_state.extracted_data = edited_data
+    st.session_state.extracted_data = edited
+    st.success("Edits saved.")
 
 with tab_export:
     if not st.session_state.extraction_complete:
@@ -310,17 +274,12 @@ with tab_export:
     st.subheader("📥 Export")
 
     if st.button("Send to Therap"):
-        BASE_DIR = Path(__file__).parent
-        idf_path = BASE_DIR / "IDF_Import_ProviderExcel_TOT-AZ_20251019.xlsx"
         base_name = st.session_state.get("base_name", "export")
-
+        edited_data = st.session_state.get("extracted_data") or {}
         if not edited_data:
             st.info("No reviewed data available to export.")
             st.stop()
 
-        if not os.path.exists(idf_path):
-            st.info("⚠️ IDF provider Excel not found. Add it to the app folder.")
-            st.stop()
 
         with open("field_mapping.json", "r") as f:
             mapping_json = json.load(f)
@@ -366,7 +325,7 @@ with tab_export:
         if not extra_df.empty:
             extra_df.to_excel(extra_file, index=False)
 
-        st.success("✅ Files generated successfully")
+        st.success("Files generated successfully")
 
         with open(official_file, "rb") as f:
             st.download_button(
