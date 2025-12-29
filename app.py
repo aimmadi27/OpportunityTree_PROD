@@ -2,7 +2,9 @@ import streamlit as st
 import json
 import pathlib
 import tempfile
+import os
 import pandas as pd
+from datetime import datetime
 from dotenv import load_dotenv
 from pdf2image import convert_from_path
 
@@ -68,18 +70,12 @@ with st.sidebar:
 st.title("📝 Handwritten Form Extractor")
 st.caption("Upload → select pages → assign schema → extract → review → export")
 
-# -------------------------------------------------
-# INIT LLM
-# -------------------------------------------------
 try:
     llm = LLMHandler()
 except Exception as e:
     st.error(f"Failed to initialize LLM: {e}")
     st.stop()
 
-# -------------------------------------------------
-# LOAD SCHEMAS
-# -------------------------------------------------
 SCHEMA_DIR = "./schemas"
 schema_files = sorted(pathlib.Path(SCHEMA_DIR).glob("*.json"))
 if not schema_files:
@@ -88,9 +84,6 @@ if not schema_files:
 
 schemas = {f.stem: json.load(open(f, "r", encoding="utf-8")) for f in schema_files}
 
-# -------------------------------------------------
-# HANDLE PDF UPLOAD
-# -------------------------------------------------
 if uploaded_pdf and uploaded_pdf.name != st.session_state.last_pdf:
     init_state()
 
@@ -103,9 +96,6 @@ if uploaded_pdf and uploaded_pdf.name != st.session_state.last_pdf:
     st.session_state.page_order = list(range(1, len(pages) + 1))
     st.session_state.selected_pages = set(st.session_state.page_order)
 
-# -------------------------------------------------
-# TABS
-# -------------------------------------------------
 tab_upload, tab_pages, tab_review, tab_export = st.tabs([
     "📤 Upload",
     "📄 Pages & Schema",
@@ -113,18 +103,14 @@ tab_upload, tab_pages, tab_review, tab_export = st.tabs([
     "📥 Export",
 ])
 
-# -------------------------------------------------
-# TAB 1 — UPLOAD
-# -------------------------------------------------
+
 with tab_upload:
     if not uploaded_pdf:
         st.info("Upload a PDF to begin.")
     else:
         st.success(f"Loaded **{uploaded_pdf.name}** ({len(st.session_state.pdf_pages)} pages)")
 
-# -------------------------------------------------
-# TAB 2 — PAGE SELECTION + SCHEMA
-# -------------------------------------------------
+
 with tab_pages:
     if not st.session_state.pdf_pages:
         st.info("Upload a PDF first.")
@@ -134,6 +120,19 @@ with tab_pages:
 
     pages = st.session_state.pdf_pages
     new_selection = set()
+
+    col1, col2, _ = st.columns([1, 1, 6])
+    with col1:
+        if st.button("Select All"):
+            st.session_state.selected_pages = set(
+                range(1, len(st.session_state.pdf_pages) + 1)
+            )
+            st.rerun()
+
+    with col2:
+        if st.button("Deselect All"):
+            st.session_state.selected_pages = set()
+            st.rerun()
 
     cols = st.columns(3)
     for idx, page_num in enumerate(st.session_state.page_order):
@@ -215,9 +214,6 @@ with tab_pages:
             st.session_state.extraction_complete = True
             st.success("Extraction complete.")
 
-# -------------------------------------------------
-# TAB 3 — REVIEW
-# -------------------------------------------------
 with tab_review:
     if not st.session_state.extraction_complete:
         st.info("Run extraction first.")
@@ -226,33 +222,85 @@ with tab_review:
     final_json = st.session_state.extracted_data
     edited_data = {}
 
-    def pretty(k):
-        return k.replace("_", " ").title()
+    def pretty_label(key: str) -> str:
+        key = key.split(".")[-1]
+        key = key.replace("_", " ")
+        return key.strip().title()
 
     for section, fields in final_json.items():
-        if not isinstance(fields, dict):
-            continue
 
-        filled = sum(1 for v in fields.values() if v)
-        total = len(fields)
+        with st.expander(pretty_label(section), expanded=False):
 
-        with st.expander(f"{pretty(section)} ({filled}/{total})"):
-            col1, col2 = st.columns(2)
-            section_data = {}
-            for i, (field, value) in enumerate(fields.items()):
-                with col1 if i % 2 == 0 else col2:
-                    section_data[field] = st.text_input(
-                        pretty(field),
-                        value=str(value) if value else "",
-                        key=f"{section}_{field}",
-                    )
-            edited_data[section] = section_data
+            if isinstance(fields, dict):
+                section_data = {}
+
+                for field, value in fields.items():
+
+                    if isinstance(value, dict):
+                        if "properties" in value and isinstance(value["properties"], dict):
+                            value = value["properties"]
+                        st.markdown(f"**{pretty_label(field)}:**")
+                        subdata = {}
+
+                        for subfield, subval in value.items():
+                            subdata[subfield] = st.text_input(
+                                pretty_label(subfield),
+                                value=subval or "",
+                                key=f"{section}_{field}_{subfield}"
+                            )
+
+                        section_data[field] = subdata
+
+                    elif isinstance(value, bool):
+                        section_data[field] = st.checkbox(
+                            pretty_label(field),
+                            value=value,
+                            key=f"{section}_{field}"
+                        )
+
+                    elif isinstance(value, list):
+                        section_data[field] = st.text_area(
+                            pretty_label(field),
+                            value=", ".join(map(str, value)),
+                            key=f"{section}_{field}"
+                        )
+
+                    else:
+                        section_data[field] = st.text_input(
+                            pretty_label(field),
+                            value=value or "",
+                            key=f"{section}_{field}"
+                        )
+
+                edited_data[section] = section_data
+
+            elif isinstance(fields, list) and fields and isinstance(fields[0], dict):
+                list_items = []
+
+                for idx, item in enumerate(fields, start=1):
+                    st.markdown(f"**Entry {idx}:**")
+                    item_data = {}
+
+                    for subfield, subval in item.items():
+                        item_data[subfield] = st.text_input(
+                            pretty_label(subfield),
+                            value=str(subval) if subval is not None else "",
+                            key=f"{section}_{idx}_{subfield}"
+                        )
+
+                    list_items.append(item_data)
+
+                edited_data[section] = list_items
+
+            else:
+                edited_data[section] = st.text_input(
+                    pretty_label(section),
+                    value=str(fields) if fields is not None else "",
+                    key=f"{section}_value"
+                )
 
     st.session_state.extracted_data = edited_data
 
-# -------------------------------------------------
-# TAB 4 — EXPORT
-# -------------------------------------------------
 with tab_export:
     if not st.session_state.extraction_complete:
         st.info("Complete extraction first.")
@@ -260,24 +308,77 @@ with tab_export:
 
     st.subheader("📥 Export")
 
-    if st.button("📊 Generate Excel", type="primary"):
-        def flatten(d, parent=""):
-            out = {}
-            for k, v in d.items():
-                nk = f"{parent}.{k}" if parent else k
+    if st.button("Send to Therap"):
+        base_name = st.session_state.get("base_name", "export")
+
+        if not edited_data:
+            st.info("No reviewed data available to export.")
+            st.stop()
+
+        idf_path = "./IDF_Import_ProviderExcel_TOT-AZ_20251019.xlsx"
+        if not os.path.exists(idf_path):
+            st.info("⚠️ IDF provider Excel not found. Add it to the app folder.")
+            st.stop()
+
+        with open("field_mapping.json", "r") as f:
+            mapping_json = json.load(f)
+
+        mapping = mapping_json.get("mappings", {})
+        reverse_map = {v: k for k, v in mapping.items() if v}
+
+        def flatten_json(data, parent_key="", sep="."):
+            items = {}
+            for k, v in data.items():
+                new_key = f"{parent_key}{sep}{k}" if parent_key else k
                 if isinstance(v, dict):
-                    out.update(flatten(v, nk))
+                    items.update(flatten_json(v, new_key, sep))
                 else:
-                    out[nk] = v
-            return out
+                    items[new_key] = v
+            return items
 
-        flat = flatten(st.session_state.extracted_data)
-        df = pd.DataFrame([flat])
+        flat_data = flatten_json(edited_data)
+        extracted_df = pd.DataFrame([flat_data])
 
-        out_file = "import_ready.xlsx"
-        df.to_excel(out_file, index=False)
+        idf_df = pd.read_excel(idf_path)
+        idf_cols = list(idf_df.columns)
 
-        with open(out_file, "rb") as f:
-            st.download_button("⬇️ Download Excel", f, file_name=out_file)
+        official_df = pd.DataFrame(columns=idf_cols)
 
-        st.success("Export ready.")
+        for col in idf_cols:
+            source_key = reverse_map.get(col)
+            if source_key and source_key in extracted_df.columns:
+                official_df[col] = extracted_df[source_key]
+            else:
+                official_df[col] = ""
+
+        mapped_extract_cols = set(reverse_map.values())
+        extra_cols = [c for c in extracted_df.columns if c not in mapped_extract_cols]
+        extra_df = extracted_df[extra_cols] if extra_cols else pd.DataFrame()
+
+        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+        official_file = f"./{base_name}_import_ready_{ts}.xlsx"
+        extra_file = f"./{base_name}_extra_fields_{ts}.xlsx"
+
+        official_df.to_excel(official_file, index=False)
+
+        if not extra_df.empty:
+            extra_df.to_excel(extra_file, index=False)
+
+        st.success("✅ Files generated successfully")
+
+        with open(official_file, "rb") as f:
+            st.download_button(
+                "⬇️ Download Import-Ready Excel (Therap Schema)",
+                f,
+                file_name=os.path.basename(official_file),
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            )
+
+        if not extra_df.empty:
+            with open(extra_file, "rb") as f:
+                st.download_button(
+                    "⬇️ Download Extra Fields Excel",
+                    f,
+                    file_name=os.path.basename(extra_file),
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                )
