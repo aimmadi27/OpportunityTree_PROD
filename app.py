@@ -11,6 +11,7 @@ from pdf2image import convert_from_path
 from ocr_extractor import extract_page_json, merge_page_results
 from llm_handler import LLMHandler
 from auth import start_google_login, handle_oauth_callback, get_current_user, logout
+from pathlib import Path
 
 st.set_page_config(
     page_title="Handwritten Form Extractor",
@@ -119,7 +120,7 @@ with tab_pages:
     st.subheader("📄 Select Pages")
 
     pages = st.session_state.pdf_pages
-    new_selection = set()
+    new_selection = set(st.session_state.selected_pages)
 
     col1, col2, _ = st.columns([1, 1, 6])
     with col1:
@@ -147,7 +148,7 @@ with tab_pages:
                 new_selection.add(page_num)
 
     if not st.session_state.pages_confirmed:
-        if st.button("✅ Confirm Selected Pages", type="primary"):
+        if st.button("Confirm Selected Pages", type="primary"):
             st.session_state.selected_pages = new_selection
             st.session_state.pages_confirmed = True
             st.rerun()
@@ -158,7 +159,7 @@ with tab_pages:
     if not st.session_state.pages_confirmed:
         st.stop()
 
-    st.subheader("🧩 Assign Schema per Page")
+    st.subheader("Assign Schema per Page")
 
     for page_num in sorted(st.session_state.selected_pages):
         col1, col2 = st.columns([1, 2])
@@ -175,7 +176,7 @@ with tab_pages:
             ]
 
     if not st.session_state.schemas_confirmed:
-        if st.button("✅ Confirm Schemas", type="primary"):
+        if st.button("Confirm Schemas", type="primary"):
             st.session_state.schemas_confirmed = True
             st.rerun()
     else:
@@ -309,13 +310,14 @@ with tab_export:
     st.subheader("📥 Export")
 
     if st.button("Send to Therap"):
+        BASE_DIR = Path(__file__).parent
+        idf_path = BASE_DIR / "IDF_Import_ProviderExcel_TOT-AZ_20251019.xlsx"
         base_name = st.session_state.get("base_name", "export")
 
         if not edited_data:
             st.info("No reviewed data available to export.")
             st.stop()
 
-        idf_path = "./IDF_Import_ProviderExcel_TOT-AZ_20251019.xlsx"
         if not os.path.exists(idf_path):
             st.info("⚠️ IDF provider Excel not found. Add it to the app folder.")
             st.stop()
