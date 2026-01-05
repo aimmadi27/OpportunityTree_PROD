@@ -1,4 +1,5 @@
 import streamlit as st
+from copy import deepcopy
 import json
 import pathlib
 import tempfile
@@ -28,6 +29,61 @@ st.set_page_config(
     layout="wide",
 )
 load_dotenv()
+
+def normalize_for_ui(obj):
+    if isinstance(obj, dict) and "value" in obj:
+        return obj["value"], obj.get("description")
+
+    if isinstance(obj, dict) and "properties" in obj:
+        values = {}
+        descriptions = {}
+        for k, v in obj["properties"].items():
+            val, desc = normalize_for_ui(v)
+            values[k] = val
+            if desc:
+                descriptions[k] = desc
+        return values, descriptions
+
+    if isinstance(obj, dict):
+        values = {}
+        descriptions = {}
+        for k, v in obj.items():
+            if k in ("type", "enum", "items", "required"):
+                continue
+            val, desc = normalize_for_ui(v)
+            values[k] = val
+            if desc:
+                descriptions[k] = desc
+        return values, descriptions
+
+    if isinstance(obj, list):
+        return obj, None
+
+    return obj, None
+
+def materialize_from_schema(schema, extracted):
+    if not isinstance(schema, dict):
+        return extracted, schema
+
+    # Object
+    if "properties" in schema:
+        extracted = extracted if isinstance(extracted, dict) else {}
+        out = {}
+        for key, subschema in schema["properties"].items():
+            out[key] = materialize_from_schema(
+                subschema,
+                extracted.get(key)
+            )
+        return out, schema
+
+    # Array
+    if schema.get("type") == "array":
+        return (extracted if isinstance(extracted, list) else []), schema
+
+    # Scalar
+    return (extracted if extracted is not None else None), schema
+
+
 
 def init_state():
     st.session_state.pdf_pages = None
@@ -209,62 +265,127 @@ with tab_pages:
             st.success("Extraction complete.")
 
 
+
 with tab_review:
-    if not st.session_state.extraction_complete:
+    if not st.session_state.get("extraction_complete"):
         st.info("Run extraction first.")
         st.stop()
 
-    data = st.session_state.extracted_data
+    st.header("✏️ Review Extracted Form Data")
 
-    def pretty_label(key: str) -> str:
-        key = str(key).split(".")[-1]
-        key = key.replace("_", " ")
-        return key.strip().title()
+    if "review_data" not in st.session_state:
+        full_data = {}
 
-    def render_value(path: str, value):
-        if isinstance(value, bool):
-            return st.checkbox(pretty_label(path), value=value, key=path)
+        selected_pages = st.session_state.selected_pages
+
+        for page_num in sorted(selected_pages):
+            schema = schemas[page_num]
+            extracted = st.session_state.extracted_data 
+            st.success(extracted)
+            page_data, _ = materialize_from_schema(schema, extracted)
+            full_data.update(page_data)
+
+        st.session_state.review_data = full_data
+
+    review_data = st.session_state.review_data
+
+    def pretty_label(label: str) -> str:
+        return label.replace("_", " ").strip().title()
+
+    def render_scalar(label, value, schema, key):
+        field_type = schema.get("type")
+
+        if field_type == "boolean":
+            return st.checkbox(label, value=value or False, key=key)
+
+        if field_type == "integer":
+            return st.number_input(label, value=value or 0, step=1, key=key)
+
+        if "enum" in schema:
+            if schema.get("type") == "array":
+                return st.multiselect(label, schema["enum"], default=value or [], key=key)
+            return st.selectbox(
+                label,
+                schema["enum"],
+                index=schema["enum"].index(value) if value in schema["enum"] else 0,
+                key=key
+            )
+
+        return st.text_input(label, value="" if value is None else str(value), key=key)
+
+    def render_any(label, value_schema, key, depth=0):
+        value, schema = value_schema
 
         if isinstance(value, dict):
-            edited = {}
-            with st.expander(pretty_label(path), expanded=False):
-                for k, v in value.items():
-                    child_path = f"{path}.{k}" if path else str(k)
-                    edited[k] = render_value(child_path, v)
-            return edited
+            if depth == 0:
+                st.subheader(label)
+            elif depth == 1:
+                st.markdown(f"**{label}**")
+            else:
+                st.markdown(f"*{label}*")
+
+            out = {}
+            for k in value.keys():
+                out[k] = render_any(
+                    pretty_label(k),
+                    value[k],
+                    f"{key}.{k}",
+                    depth + 1
+                )
+            return out
 
         if isinstance(value, list):
-            if value and all(isinstance(x, dict) for x in value):
-                edited_list = []
-                with st.expander(pretty_label(path), expanded=False):
-                    for i, item in enumerate(value):
-                        with st.expander(f"{pretty_label(path)} [{i+1}]", expanded=False):
-                            edited_item = {}
-                            for k, v in item.items():
-                                child_path = f"{path}.{i}.{k}"
-                                edited_item[k] = render_value(child_path, v)
-                            edited_list.append(edited_item)
-                return edited_list
+            if schema.get("items", {}).get("type") == "object":
+                rows = []
+                for idx, row in enumerate(value):
+                    edited_row = {}
+                    row = row if isinstance(row, dict) else {}
+                    for field, field_schema in schema["items"]["properties"].items():
+                        edited_row[field] = render_scalar(
+                            pretty_label(field),
+                            row.get(field),
+                            field_schema,
+                            f"{key}.{idx}.{field}"
+                        )
+                    rows.append(edited_row)
+                return rows
 
-            existing = "\n".join("" if x is None else str(x) for x in value)
-            txt = st.text_area(pretty_label(path), value=existing, key=path, height=120)
-            return [line for line in (l.strip() for l in txt.splitlines()) if line != ""]
+            return st.multiselect(
+                label,
+                schema.get("enum", []),
+                default=value or [],
+                key=key
+            ) if "enum" in schema else st.text_area(
+                label,
+                value="\n".join(value),
+                key=key
+            ).splitlines()
 
-        if isinstance(value, (int, float)):
-            txt = st.text_input(pretty_label(path), value=str(value), key=path)
-            try:
-                return int(txt) if isinstance(value, int) else float(txt)
-            except:
-                return txt
+        return render_scalar(label, value, schema, key)
 
-        return st.text_input(pretty_label(path), value="" if value is None else str(value), key=path)
+    edited_output = {}
 
-    edited = {}
-    for section, fields in (data or {}).items():
-        edited[section] = render_value(section, fields)
+    for section in review_data.keys():
+        edited_output[section] = render_any(
+            pretty_label(section),
+            review_data[section],
+            f"review.{section}",
+            depth=0
+        )
 
-    st.session_state.extracted_data = edited
-    st.success("Edits saved.")
+    col1, col2 = st.columns(2)
+
+    with col1:
+        if st.button("💾 Save Changes"):
+            st.session_state.review_data = edited_output
+            st.success("Review changes saved.")
+
+    with col2:
+        if st.button("✅ Apply to Final Output"):
+            st.session_state.extracted_data = deepcopy(st.session_state.review_data)
+            st.success("Changes applied to extracted data.")
+
+
 
 with tab_export:
     if not st.session_state.extraction_complete:
